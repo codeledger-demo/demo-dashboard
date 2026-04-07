@@ -112,7 +112,20 @@ Any platform that runs Node and exposes a Postgres add-on works:
 | `DATABASE_URL` | If using live mode | Postgres connection string |
 | `NEXT_PUBLIC_BASE_URL` | No | For absolute invite link generation, e.g. `https://demo.codeledger.dev` |
 
-## GitHub Repository Setup
+## GitHub Organization & Repository Setup
+
+### 1. Create the codeledger-demo organization
+
+If the org doesn't already exist (per `acme-platform/SETUP.md`):
+
+1. Sign in to GitHub as the org owner
+2. Create a new Organization at https://github.com/organizations/new
+3. Org name: `codeledger-demo` (or any name you control)
+4. Plan: Free is fine for private repos with the standard collaborator limit
+
+The same org should host all 3 repos (acme-platform, synthetic-reality-engine, demo-dashboard).
+
+### 2. Create the dashboard repository
 
 ```bash
 gh repo create codeledger-demo/demo-dashboard \
@@ -126,6 +139,49 @@ git push -u origin main
 ```
 
 Repository should be **private** — invite tokens are issued out-of-band.
+
+## Bot Accounts (Not Required for the Dashboard)
+
+Unlike `acme-platform`, the dashboard does NOT need the three bot persona
+accounts (Sara/Marcus/Priya). Those are only used by `synthetic-reality-engine`
+to author commits and PRs. The dashboard reads their generated CIC results
+out of Postgres — it doesn't write back to GitHub.
+
+If you do want to add a periodic sync GitHub Action that pulls fresh
+acme-platform data and runs `pnpm db:sync`, that workflow can authenticate
+with a single read-only PAT (one of the persona PATs is fine, or a dedicated
+"sync-bot" account).
+
+## GitHub Actions Secrets
+
+The dashboard repo only needs secrets if you add the periodic sync workflow
+described in "Data Sync Schedule" below. Required secrets:
+
+| Secret | Purpose | How to obtain |
+|--------|---------|---------------|
+| `DATABASE_URL` | Postgres connection string for the production DB | From your hosting provider (Neon, Supabase, Render, etc.) |
+| `DASHBOARD_JWT_SECRET` | Signs invite link JWTs. **Min 32 characters.** | Generate locally: `openssl rand -hex 32` |
+| `ACME_REPO_TOKEN` | Read-only PAT for cloning acme-platform during sync | Create on a bot account with `repo:read` scope only |
+
+To set them:
+
+```bash
+gh secret set DATABASE_URL --repo codeledger-demo/demo-dashboard
+gh secret set DASHBOARD_JWT_SECRET --repo codeledger-demo/demo-dashboard
+gh secret set ACME_REPO_TOKEN --repo codeledger-demo/demo-dashboard
+```
+
+For local development, put the same values in `.env.local` (gitignored).
+
+## Production Environment Variables Summary
+
+Set these on your hosting platform (Render/Railway/Fly/etc.):
+
+| Variable | Required | Notes |
+|----------|----------|-------|
+| `DASHBOARD_JWT_SECRET` | Yes | Without this, all invite tokens fail verification (loud security warning) |
+| `DATABASE_URL` | Yes (live mode) | Omit to fall back to fixture mode |
+| `NEXT_PUBLIC_BASE_URL` | No | E.g. `https://demo.codeledger.dev` |
 
 ## Generating Invite Tokens
 
