@@ -1,0 +1,88 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: string;
+}
+
+const navItems: NavItem[] = [
+  { label: 'Team Health', href: '/team-health', icon: 'pulse' },
+  { label: 'CIC History', href: '/cic-history', icon: 'check' },
+  { label: 'Release Gates', href: '/release-gates', icon: 'shield' },
+  { label: 'Lessons', href: '/lessons', icon: 'book' },
+  { label: 'Time Horizon', href: '/time-horizon', icon: 'clock' },
+  { label: 'Drift Map', href: '/drift-map', icon: 'map' },
+  { label: 'Incidents', href: '/incidents', icon: 'alert' },
+  { label: 'Sandbox', href: '/sandbox', icon: 'terminal' },
+];
+
+const iconMap: Record<string, string> = {
+  pulse: 'M3 12h4l3-9 4 18 3-9h4',
+  check: 'M5 13l4 4L19 7',
+  shield: 'M12 2l7 4v6c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V6l7-4z',
+  book: 'M4 19V5a2 2 0 012-2h8a2 2 0 012 2v14l-5-3-5 3z',
+  clock: 'M12 6v6l4 2M12 2a10 10 0 100 20 10 10 0 000-20z',
+  map: 'M3 7l6-3 6 3 6-3v14l-6 3-6-3-6 3V7z',
+  alert: 'M12 9v4m0 4h.01M12 2L2 20h20L12 2z',
+  terminal: 'M4 17l6-6-6-6M12 19h8',
+};
+
+export function Sidebar() {
+  const pathname = usePathname();
+
+  return (
+    <aside className="flex w-60 flex-col bg-surface-sidebar text-white">
+      <div className="flex items-center gap-2 px-5 py-5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-accent text-sm font-bold">
+          CL
+        </div>
+        <div>
+          <div className="text-sm font-semibold">CodeLedger</div>
+          <div className="text-xs text-emerald-300/60">Synthetic Demo</div>
+        </div>
+      </div>
+
+      <nav className="flex-1 px-3 py-2">
+        <ul className="space-y-1">
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.href || pathname?.startsWith(`${item.href}/`);
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                    isActive
+                      ? 'bg-brand-primary/30 text-white'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <svg
+                    className="h-4 w-4 shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d={iconMap[item.icon] ?? ''} />
+                  </svg>
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      <div className="border-t border-white/10 px-5 py-4 text-xs text-white/40">
+        Read-only demo instance
+      </div>
+    </aside>
+  );
+}

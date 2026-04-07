@@ -1,0 +1,38 @@
+version: '3.9'
+
+# Local Postgres for the demo-dashboard.
+#
+# Usage:
+#   docker compose up -d
+#   export DATABASE_URL=postgres://demo:demo@localhost:5433/demo_dashboard
+#   pnpm db:sync   # populate from a bootstrap output directory
+#   pnpm dev       # the dashboard now reads live data instead of fixtures
+#
+# Tear down:
+#   docker compose down -v   # -v drops the data volume
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: demo-dashboard-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo_dashboard
+    ports:
+      # Use 5433 to avoid clashing with any local Postgres on 5432
+      - '5433:5432'
+    volumes:
+      - demo_dashboard_pgdata:/var/lib/postgresql/data
+      # Schema is mounted into /docker-entrypoint-initdb.d, which Postgres
+      # auto-runs on first boot of an empty data volume.
+      - ./src/lib/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U demo -d demo_dashboard']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  demo_dashboard_pgdata:
