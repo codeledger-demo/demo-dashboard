@@ -2,7 +2,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { IncidentTimeline } from '@/components/incidents/IncidentTimeline';
 import { IncidentMoments } from '@/components/incidents/IncidentMoments';
-import { getNamedIncident } from '@/lib/api/timeline-queries';
+import { getNamedIncident, getNamedIncidents } from '@/lib/api/timeline-queries';
+
+// Required for static export (output: 'export' in next.config.mjs).
+// Pre-renders one page per known incident ID at build time so the
+// dynamic route can be served as plain static HTML.
+export async function generateStaticParams(): Promise<Array<{ id: string }>> {
+  const incidents = await getNamedIncidents();
+  return incidents.map((incident) => ({ id: incident.id }));
+}
 
 const severityStyles: Record<string, string> = {
   critical: 'bg-red-50 text-semantic-error',
