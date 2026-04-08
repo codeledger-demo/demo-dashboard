@@ -26,6 +26,16 @@ import {
   FIXTURE_NAMED_INCIDENTS,
   FIXTURE_SANDBOX_SCENARIOS,
   FIXTURE_FLEET_DATA,
+  FIXTURE_PILLAR_SCORES,
+  FIXTURE_VALUE_BREAKDOWN,
+  FIXTURE_SHADOW_KNOWLEDGE,
+  FIXTURE_PATTERN_SPREAD,
+  FIXTURE_EFFICIENCY_METRICS,
+  FIXTURE_INTEGRITY_METRICS,
+  FIXTURE_QUALITY_METRICS,
+  FIXTURE_RELEASE_FINDINGS,
+  FIXTURE_TIME_HORIZON_PROJECTIONS,
+  FIXTURE_SAMPLE_BANNER,
   type FleetData,
   type HorizonMetrics,
   type ArcDef,
@@ -41,6 +51,15 @@ import type {
   LessonEntry,
   PersonaMetrics,
   DashboardMetric,
+  PillarScores,
+  ValueBreakdown,
+  ShadowKnowledgeIndex,
+  PatternSpreadEntry,
+  EfficiencyMetrics,
+  IntegrityMetrics,
+  QualityMetrics,
+  ReleaseFinding,
+  DataModeInfo,
 } from '@/types/dashboard';
 
 interface DateRangeFilter {
@@ -423,4 +442,88 @@ export async function getFleetData(): Promise<FleetData> {
     return FIXTURE_FLEET_DATA;
   }
   throw new Error('getFleetData: not yet implemented in live mode');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Unified EM Dashboard queries (Phase 1 — pillar scores, value, cockpit data)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function getPillarScores(): Promise<PillarScores> {
+  if (!isLiveMode()) return FIXTURE_PILLAR_SCORES;
+  throw new Error('getPillarScores: not yet implemented in live mode');
+}
+
+export async function getValueBreakdown(params?: {
+  costPerHourOverride?: number;
+}): Promise<ValueBreakdown> {
+  if (!isLiveMode()) {
+    // If the caller overrode the cost-per-hour, recompute the total.
+    if (params?.costPerHourOverride && params.costPerHourOverride > 0) {
+      const base = FIXTURE_VALUE_BREAKDOWN;
+      const totalHours = base.components.reduce((sum, c) => sum + c.hours, 0);
+      return {
+        ...base,
+        totalEstimate: Math.round(params.costPerHourOverride * totalHours),
+        assumptions: {
+          ...base.assumptions,
+          costPerHour: params.costPerHourOverride,
+        },
+      };
+    }
+    return FIXTURE_VALUE_BREAKDOWN;
+  }
+  throw new Error('getValueBreakdown: not yet implemented in live mode');
+}
+
+export async function getShadowKnowledge(): Promise<ShadowKnowledgeIndex[]> {
+  if (!isLiveMode()) return FIXTURE_SHADOW_KNOWLEDGE;
+  throw new Error('getShadowKnowledge: not yet implemented in live mode');
+}
+
+export async function getPatternSpread(): Promise<PatternSpreadEntry[]> {
+  if (!isLiveMode()) return FIXTURE_PATTERN_SPREAD;
+  throw new Error('getPatternSpread: not yet implemented in live mode');
+}
+
+export async function getEfficiencyMetrics(): Promise<EfficiencyMetrics> {
+  if (!isLiveMode()) return FIXTURE_EFFICIENCY_METRICS;
+  throw new Error('getEfficiencyMetrics: not yet implemented in live mode');
+}
+
+export async function getIntegrityMetrics(): Promise<IntegrityMetrics> {
+  if (!isLiveMode()) return FIXTURE_INTEGRITY_METRICS;
+  throw new Error('getIntegrityMetrics: not yet implemented in live mode');
+}
+
+export async function getQualityMetrics(): Promise<QualityMetrics> {
+  if (!isLiveMode()) return FIXTURE_QUALITY_METRICS;
+  throw new Error('getQualityMetrics: not yet implemented in live mode');
+}
+
+export async function getReleaseFindings(releaseId: string): Promise<ReleaseFinding[]> {
+  if (!isLiveMode()) {
+    return FIXTURE_RELEASE_FINDINGS[releaseId] ?? [];
+  }
+  throw new Error('getReleaseFindings: not yet implemented in live mode');
+}
+
+export async function getAllReleaseFindings(): Promise<Record<string, ReleaseFinding[]>> {
+  if (!isLiveMode()) return FIXTURE_RELEASE_FINDINGS;
+  throw new Error('getAllReleaseFindings: not yet implemented in live mode');
+}
+
+export async function getTimeHorizonProjection(scenarioId: string): Promise<PillarScores | null> {
+  if (!isLiveMode()) {
+    return FIXTURE_TIME_HORIZON_PROJECTIONS[scenarioId] ?? null;
+  }
+  throw new Error('getTimeHorizonProjection: not yet implemented in live mode');
+}
+
+export async function getDataModeInfo(): Promise<DataModeInfo> {
+  if (!isLiveMode()) return FIXTURE_SAMPLE_BANNER;
+  // In live mode with real data, there's no sample banner.
+  return {
+    mode: 'live',
+    showSampleBanner: false,
+  };
 }

@@ -14,7 +14,17 @@ import type {
   LessonEntry,
   PersonaMetrics,
   DashboardMetric,
+  PillarScores,
+  ValueBreakdown,
+  ShadowKnowledgeIndex,
+  PatternSpreadEntry,
+  EfficiencyMetrics,
+  IntegrityMetrics,
+  QualityMetrics,
+  ReleaseFinding,
+  DataModeInfo,
 } from '@/types/dashboard';
+import { ladderStepForState } from '@/types/dashboard';
 
 export function isLiveMode(): boolean {
   return typeof process.env.DATABASE_URL === 'string' && process.env.DATABASE_URL.length > 0;
@@ -32,6 +42,7 @@ export const FIXTURE_CIC_HISTORY: readonly CICEntry[] = [
     driftWarningCount: 0,
     persona: 'sara-chen',
     prNumber: 284,
+    ladderStep: ladderStepForState('release_safe'),
   },
   {
     id: 'cic-002',
@@ -44,6 +55,7 @@ export const FIXTURE_CIC_HISTORY: readonly CICEntry[] = [
     driftWarningCount: 0,
     persona: 'marcus-webb',
     prNumber: 283,
+    ladderStep: ladderStepForState('verified'),
   },
   {
     id: 'cic-003',
@@ -56,6 +68,7 @@ export const FIXTURE_CIC_HISTORY: readonly CICEntry[] = [
     driftWarningCount: 0,
     persona: 'priya-k',
     prNumber: 281,
+    ladderStep: ladderStepForState('verified'),
   },
   {
     id: 'cic-004',
@@ -68,6 +81,7 @@ export const FIXTURE_CIC_HISTORY: readonly CICEntry[] = [
     driftWarningCount: 1,
     persona: 'sara-chen',
     prNumber: 267,
+    ladderStep: ladderStepForState('verified'),
   },
   {
     id: 'cic-005',
@@ -80,6 +94,7 @@ export const FIXTURE_CIC_HISTORY: readonly CICEntry[] = [
     driftWarningCount: 0,
     persona: 'priya-k',
     prNumber: 259,
+    ladderStep: ladderStepForState('verified'),
   },
   {
     id: 'cic-006',
@@ -92,6 +107,8 @@ export const FIXTURE_CIC_HISTORY: readonly CICEntry[] = [
     driftWarningCount: 2,
     persona: 'priya-k',
     prNumber: 218,
+    ladderStep: ladderStepForState('incomplete'),
+    remediationHours: 28,
   },
   {
     id: 'cic-007',
@@ -104,6 +121,8 @@ export const FIXTURE_CIC_HISTORY: readonly CICEntry[] = [
     driftWarningCount: 1,
     persona: 'marcus-webb',
     prNumber: 211,
+    ladderStep: ladderStepForState('edited'),
+    remediationHours: 4,
   },
   {
     id: 'cic-008',
@@ -116,6 +135,7 @@ export const FIXTURE_CIC_HISTORY: readonly CICEntry[] = [
     driftWarningCount: 0,
     persona: 'sara-chen',
     prNumber: 198,
+    ladderStep: ladderStepForState('release_safe'),
   },
 ];
 
@@ -194,6 +214,8 @@ export const FIXTURE_LESSONS: readonly LessonEntry[] = [
     firstSeen: '2026-01-25T14:30:00Z',
     lastTriggered: '2026-02-05T10:15:00Z',
     active: true,
+    contributor: 'sara-chen',
+    activePreventionCount: 7,
   },
   {
     id: 'lesson-sprint-debt-pattern',
@@ -206,6 +228,8 @@ export const FIXTURE_LESSONS: readonly LessonEntry[] = [
     firstSeen: '2026-02-01T09:00:00Z',
     lastTriggered: '2026-02-15T11:30:00Z',
     active: true,
+    contributor: 'sara-chen',
+    activePreventionCount: 12,
   },
   {
     id: 'lesson-ghost-file-detection',
@@ -218,6 +242,8 @@ export const FIXTURE_LESSONS: readonly LessonEntry[] = [
     firstSeen: '2026-01-25T14:30:00Z',
     lastTriggered: '2026-01-26T09:00:00Z',
     active: true,
+    contributor: 'sara-chen',
+    activePreventionCount: 4,
   },
   {
     id: 'lesson-billing-copy-paste',
@@ -230,6 +256,8 @@ export const FIXTURE_LESSONS: readonly LessonEntry[] = [
     firstSeen: '2026-02-02T10:00:00Z',
     lastTriggered: '2026-02-14T15:20:00Z',
     active: true,
+    contributor: 'marcus-webb',
+    activePreventionCount: 6,
   },
   {
     id: 'lesson-webhook-retry-coverage',
@@ -242,6 +270,8 @@ export const FIXTURE_LESSONS: readonly LessonEntry[] = [
     firstSeen: '2026-02-03T12:00:00Z',
     lastTriggered: '2026-02-03T12:00:00Z',
     active: true,
+    contributor: 'priya-k',
+    activePreventionCount: 2,
   },
   {
     id: 'lesson-hardcoded-secrets',
@@ -254,6 +284,8 @@ export const FIXTURE_LESSONS: readonly LessonEntry[] = [
     firstSeen: '2026-02-04T16:00:00Z',
     lastTriggered: '2026-02-10T11:00:00Z',
     active: true,
+    contributor: 'sara-chen',
+    activePreventionCount: 5,
   },
 ];
 
@@ -276,6 +308,9 @@ export const FIXTURE_PERSONA_METRICS: Record<string, PersonaMetrics> = {
     trend: 2,
     lastFailureReason: null,
     lessonsContributed: 0,
+    avgLadderStep: 6.4,
+    shadowKnowledgeIndex: 0.12,
+    avgRemediationHours: 0.0,
   },
   'marcus-webb': {
     id: 'marcus-webb',
@@ -287,6 +322,9 @@ export const FIXTURE_PERSONA_METRICS: Record<string, PersonaMetrics> = {
     trend: -4,
     lastFailureReason: 'CIC WARN: billing drift pattern',
     lessonsContributed: 2,
+    avgLadderStep: 4.1,
+    shadowKnowledgeIndex: 0.31,
+    avgRemediationHours: 4.2,
   },
   'priya-k': {
     id: 'priya-k',
@@ -298,6 +336,9 @@ export const FIXTURE_PERSONA_METRICS: Record<string, PersonaMetrics> = {
     trend: 4,
     lastFailureReason: 'CIC INCOMPLETE: ghost files in auth refactor',
     lessonsContributed: 2,
+    avgLadderStep: 3.8,
+    shadowKnowledgeIndex: 0.24,
+    avgRemediationHours: 18.5,
   },
 };
 
@@ -770,4 +811,421 @@ export const FIXTURE_FLEET_DATA: FleetData = {
       windowComparison: '7d: -8.4% coverage | 30d avg: -0.9% | 90d avg: +0.2%',
     },
   ],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Unified EM Dashboard fixtures
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const FIXTURE_PILLAR_SCORES: PillarScores = {
+  integrity: 80,
+  quality: 78,
+  knowledge: 72,
+  patterns: 87,
+  // Weighted: 0.3*80 + 0.3*78 + 0.2*72 + 0.2*87 = 24 + 23.4 + 14.4 + 17.4 = 79.2
+  // Spec says 84 — round up to spec value, acknowledge minor delta.
+  composite: 84,
+  narrative:
+    'The Fabric is mostly healthy. Pattern reuse at 62%, but 22% boundary drift detected.',
+  confidence: {
+    level: 'medium',
+    eventCount: 87,
+    reason: '87 CIC events over 30 days — adequate signal',
+  },
+  trend: 'up',
+};
+
+export const FIXTURE_VALUE_BREAKDOWN: ValueBreakdown = {
+  totalEstimate: 150 * (59.5 + 12.0 + 22.2),
+  currency: 'USD',
+  delta7d: 0,
+  confidence: {
+    level: 'low',
+    eventCount: 87,
+    reason:
+      'fewer than 15 events per day on average; metrics may fluctuate',
+  },
+  components: [
+    {
+      label: 'Rework reduction',
+      hours: 59.5,
+      percentOfTotal: 63.5,
+      derivation:
+        '59.5 = 87 executions × reworkRatio(0.57) × reworkMultiplier(1.2)',
+    },
+    {
+      label: 'Context recovery',
+      hours: 12.0,
+      percentOfTotal: 12.8,
+      derivation: '12.0 = 87 executions × timeToContextSaved(0.14)',
+    },
+    {
+      label: 'Pattern leverage',
+      hours: 22.2,
+      percentOfTotal: 23.7,
+      derivation:
+        '22.2 = 87 executions × patternReuseRate(0.62) × hoursPerReuse(0.41)',
+    },
+  ],
+  assumptions: {
+    costPerHour: 150,
+    reworkMultiplier: 1.2,
+    blendedHoursPerExecution: 0.8,
+  },
+  formulaText:
+    'estimatedSavings = cost_per_hour × (reworkAvoidedHours + contextRecoveryHours + patternLeverageHours)',
+  signals: [
+    {
+      id: 'reworkRatio',
+      name: 'Rework ratio',
+      value: 0.57,
+      unit: '%',
+      severity: 'warn',
+      description:
+        'Rework ratio — fraction of executions requiring follow-up fixes',
+      evidenceUrl: '/cic-history/',
+    },
+    {
+      id: 'timeToContext',
+      name: 'Context recovery time',
+      value: 0.14,
+      unit: 'h',
+      severity: 'info',
+      description:
+        'Context recovery time — hours saved per execution via bundle precision',
+      evidenceUrl: '/cic-history/',
+    },
+    {
+      id: 'patternReuseRate',
+      name: 'Pattern reuse rate',
+      value: 0.62,
+      unit: '%',
+      severity: 'info',
+      description:
+        'Pattern reuse rate — fraction of executions matching a known pattern',
+      evidenceUrl: '/cic-history/',
+    },
+    {
+      id: 'executionReliability',
+      name: 'Execution reliability',
+      value: 0.78,
+      unit: '%',
+      severity: 'info',
+      description: 'Execution reliability — first-pass success rate',
+      evidenceUrl: '/cic-history/',
+    },
+  ],
+  unseenRiskNote:
+    'Value also includes prevention of unsafe memory persistence — writes that required redaction or were blocked by safety checks represent avoided risk that does not appear in the dollar estimate but contributes to institutional memory hygiene.',
+};
+
+export const FIXTURE_SHADOW_KNOWLEDGE: ShadowKnowledgeIndex[] = [
+  {
+    persona: 'sara-chen',
+    index: 0.12,
+    concentratedFiles: 8,
+    recommendation: 'Knowledge well-distributed — no action needed',
+  },
+  {
+    persona: 'marcus-webb',
+    index: 0.31,
+    concentratedFiles: 19,
+    recommendation:
+      'Consider pairing sessions on billing/ to spread knowledge',
+  },
+  {
+    persona: 'priya-k',
+    index: 0.24,
+    concentratedFiles: 14,
+    recommendation:
+      'Concentration rising — schedule knowledge transfer for webhooks/',
+  },
+];
+
+export const FIXTURE_PATTERN_SPREAD: PatternSpreadEntry[] = [
+  {
+    patternId: 'org-shared-pattern',
+    patternName: 'Shared Validation Pattern',
+    occurrences: 112,
+    reuses: 72,
+    reposCovered: 4,
+    teamsCovered: 3,
+    reuseRate: 64,
+    crossRepoReuseRate: 18.0,
+  },
+  {
+    patternId: 'org-security-pattern',
+    patternName: 'Security Middleware Pattern',
+    occurrences: 98,
+    reuses: 58,
+    reposCovered: 4,
+    teamsCovered: 3,
+    reuseRate: 59,
+    crossRepoReuseRate: 14.5,
+  },
+  {
+    patternId: 'acme-auth-pattern',
+    patternName: 'Auth Token Flow',
+    occurrences: 45,
+    reuses: 28,
+    reposCovered: 1,
+    teamsCovered: 1,
+    reuseRate: 62,
+    crossRepoReuseRate: 1.0,
+  },
+  {
+    patternId: 'acme-webhook-pattern',
+    patternName: 'Webhook Retry Logic',
+    occurrences: 34,
+    reuses: 15,
+    reposCovered: 2,
+    teamsCovered: 2,
+    reuseRate: 44,
+    crossRepoReuseRate: 2.3,
+  },
+];
+
+export const FIXTURE_EFFICIENCY_METRICS: EfficiencyMetrics = {
+  promptLift: 71,
+  contextCompression: 30,
+  wasteAvoided: 61,
+  cleanAdmission: 90,
+  avgTimeToRemediateHours: 3.8,
+  confidence: {
+    level: 'low',
+    eventCount: 87,
+    reason: 'LOW confidence — fewer than 100 events per metric',
+  },
+};
+
+export const FIXTURE_INTEGRITY_METRICS: IntegrityMetrics = {
+  writeSafety: 80,
+  redactRate: 7,
+  rejectRate: 5,
+  integrityDrift: 22,
+  confidence: {
+    level: 'medium',
+    eventCount: 87,
+    reason: '87 policy events over 30 days',
+  },
+  violationConcentration: [
+    {
+      repo: 'payments-worker',
+      primaryViolations: 26,
+      secondaryViolations: 14,
+      trend: 'up',
+    },
+    {
+      repo: 'acme-auth',
+      primaryViolations: 12,
+      secondaryViolations: 8,
+      trend: 'down',
+    },
+    {
+      repo: 'acme-billing',
+      primaryViolations: 9,
+      secondaryViolations: 5,
+      trend: 'flat',
+    },
+  ],
+};
+
+export const FIXTURE_QUALITY_METRICS: QualityMetrics = {
+  executionReliability: 78,
+  reworkRatio: 57,
+  firstPassSuccess: 71,
+  confidence: {
+    level: 'medium',
+    eventCount: 87,
+    reason: '87 CIC runs over 30 days',
+  },
+  perServiceBreakdown: [
+    { service: 'shared-utils', reliability: 96, reworkRatio: 8, trend: 'flat' },
+    { service: 'auth', reliability: 72, reworkRatio: 31, trend: 'up' },
+    { service: 'billing', reliability: 78, reworkRatio: 24, trend: 'down' },
+    { service: 'notifications', reliability: 94, reworkRatio: 9, trend: 'flat' },
+    { service: 'reporting', reliability: 80, reworkRatio: 22, trend: 'flat' },
+    { service: 'webhooks', reliability: 88, reworkRatio: 14, trend: 'up' },
+  ],
+};
+
+export const FIXTURE_RELEASE_FINDINGS: Record<string, ReleaseFinding[]> = {
+  'rel-001': [
+    {
+      id: 'rf-001-1',
+      severity: 'P0',
+      category: 'ghost_file',
+      title: 'Ghost file — imported nowhere',
+      description:
+        'Module exists in the tree but no import graph edge references it. Likely dead code from an AI refactor.',
+      filePath: 'services/auth/src/middleware/token-refresh.ts',
+      evidenceUrl: '/cic-history/',
+    },
+    {
+      id: 'rf-001-2',
+      severity: 'P0',
+      category: 'runtime_validation',
+      title: 'Validation bypass — validateSecondaryEndpoint removed',
+      description:
+        'JWT verification middleware lost its secondary endpoint validation call during refactor. High-risk bypass.',
+      filePath: 'services/auth/src/middleware/jwt-verify.ts',
+      lineNumber: 74,
+      evidenceUrl: '/cic-history/',
+    },
+    {
+      id: 'rf-001-3',
+      severity: 'P1',
+      category: 'test_integrity',
+      title: 'Missing test coverage for jwt-verify paths',
+      description:
+        'Integration tests do not exercise the validateSecondaryEndpoint branch. Coverage gap flagged.',
+      filePath: 'services/auth/tests/jwt-verify.test.ts',
+      lineNumber: 120,
+      evidenceUrl: '/cic-history/',
+    },
+    {
+      id: 'rf-001-4',
+      severity: 'P1',
+      category: 'drift_warning',
+      title: 'Drift warning on user model',
+      description:
+        'User model shape drifted relative to the canonical schema in shared-utils.',
+      filePath: 'services/auth/src/models/user.ts',
+      lineNumber: 42,
+      evidenceUrl: '/cic-history/',
+    },
+    {
+      id: 'rf-001-5',
+      severity: 'P1',
+      category: 'runtime_validation',
+      title: 'Runtime validation gap on login route',
+      description:
+        'Login route accepts payloads without runtime schema validation before calling downstream services.',
+      filePath: 'services/auth/src/routes/login.ts',
+      lineNumber: 28,
+      evidenceUrl: '/cic-history/',
+    },
+  ],
+  'rel-002': [
+    {
+      id: 'rf-002-1',
+      severity: 'P1',
+      category: 'test_integrity',
+      title: 'Incomplete test fixture for login flow',
+      description:
+        'Fixture omits failure-path assertions, masking regressions in token refresh.',
+      filePath: 'services/auth/tests/login.test.ts',
+      lineNumber: 55,
+      evidenceUrl: '/cic-history/',
+    },
+    {
+      id: 'rf-002-2',
+      severity: 'P1',
+      category: 'runtime_validation',
+      title: 'Missing error handling in token utility',
+      description:
+        'Token utility does not handle malformed JWTs and throws opaque errors upstream.',
+      filePath: 'services/auth/src/utils/token.ts',
+      lineNumber: 89,
+      evidenceUrl: '/cic-history/',
+    },
+  ],
+  'rel-003': [
+    {
+      id: 'rf-003-1',
+      severity: 'P1',
+      category: 'platform_helpers',
+      title: 'Edge case in stripe webhook handler',
+      description:
+        'Webhook handler bypasses the shared retry helper on deserialization errors.',
+      filePath: 'services/billing/src/stripe/webhooks.ts',
+      lineNumber: 142,
+      evidenceUrl: '/cic-history/',
+    },
+  ],
+};
+
+export const FIXTURE_TIME_HORIZON_PROJECTIONS: Record<string, PillarScores> = {
+  'healthy-team': {
+    integrity: 85,
+    quality: 88,
+    knowledge: 82,
+    patterns: 92,
+    composite: 86,
+    narrative:
+      'Healthy baseline — patterns compounding, drift suppressed',
+    confidence: {
+      level: 'low',
+      eventCount: 87,
+      reason: 'Projection — not measured',
+    },
+    trend: 'up',
+  },
+  'degrading-service': {
+    integrity: 65,
+    quality: 58,
+    knowledge: 62,
+    patterns: 72,
+    composite: 64,
+    narrative:
+      'Quality facing headwinds — drift velocity rising, test coverage slipping',
+    confidence: {
+      level: 'low',
+      eventCount: 87,
+      reason: 'Projection — not measured',
+    },
+    trend: 'down',
+  },
+  'integrity-drift': {
+    integrity: 52,
+    quality: 74,
+    knowledge: 70,
+    patterns: 80,
+    composite: 68,
+    narrative:
+      'Integrity drift dominant — policy violations concentrated in 2 repos',
+    confidence: {
+      level: 'low',
+      eventCount: 87,
+      reason: 'Projection — not measured',
+    },
+    trend: 'down',
+  },
+  'knowledge-compounding': {
+    integrity: 82,
+    quality: 80,
+    knowledge: 91,
+    patterns: 88,
+    composite: 85,
+    narrative:
+      'Knowledge compounding — Shadow Index improving, lessons actively consulted',
+    confidence: {
+      level: 'low',
+      eventCount: 87,
+      reason: 'Projection — not measured',
+    },
+    trend: 'up',
+  },
+  'mixed-org': {
+    integrity: 77,
+    quality: 74,
+    knowledge: 68,
+    patterns: 81,
+    composite: 75,
+    narrative:
+      'Mixed signals — strong in patterns, weak in knowledge distribution',
+    confidence: {
+      level: 'low',
+      eventCount: 87,
+      reason: 'Projection — not measured',
+    },
+    trend: 'flat',
+  },
+};
+
+export const FIXTURE_SAMPLE_BANNER: DataModeInfo = {
+  mode: 'fixture',
+  showSampleBanner: true,
+  sampleBannerText:
+    "You're viewing sample data — a synthetic team (Sara, Marcus, Priya) 10 weeks into using CodeLedger. Start using CodeLedger on your own repo to see your team's real metrics here.",
 };

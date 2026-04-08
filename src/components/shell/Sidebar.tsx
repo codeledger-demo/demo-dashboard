@@ -11,6 +11,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Team Health', href: '/team-health', icon: 'pulse' },
+  { label: 'Value', href: '/value', icon: 'dollar' },
   { label: 'CIC History', href: '/cic-history', icon: 'check' },
   { label: 'Release Gates', href: '/release-gates', icon: 'shield' },
   { label: 'Lessons', href: '/lessons', icon: 'book' },
@@ -31,6 +32,7 @@ const iconMap: Record<string, string> = {
   alert: 'M12 9v4m0 4h.01M12 2L2 20h20L12 2z',
   terminal: 'M4 17l6-6-6-6M12 19h8',
   globe: 'M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20',
+  dollar: 'M12 1v22M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6',
 };
 
 export function Sidebar() {
