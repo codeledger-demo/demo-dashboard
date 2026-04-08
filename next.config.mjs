@@ -11,10 +11,10 @@ const nextConfig = {
   // URLs like /team-health/ work without a trailing slash workaround.
   trailingSlash: true,
 
-  // GitHub Pages serves from /<repo-name>/ by default. The basePath and
-  // assetPrefix are controlled by the NEXT_PUBLIC_BASE_PATH env var so
-  // the same build can target either github.io/demo-dashboard or a
-  // custom domain at root.
+  // Dashboard is served from the root of the custom domain
+  // (demo.codeledger.dev), so no basePath/assetPrefix needed.
+  // NEXT_PUBLIC_BASE_PATH is still honored if ever deploying to
+  // a sub-path (e.g. github.io fallback), but the default is root.
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || '',
 

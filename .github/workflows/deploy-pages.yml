@@ -46,9 +46,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build static site
-        env:
-          # Repo name is the basePath when serving from github.io
-          NEXT_PUBLIC_BASE_PATH: /demo-dashboard
+        # Serves from root of demo.codeledger.dev — no basePath.
+        # If ever falling back to github.io, re-add:
+        #   env:
+        #     NEXT_PUBLIC_BASE_PATH: /demo-dashboard
         run: pnpm build
 
       - name: Add .nojekyll (prevent Jekyll processing)
