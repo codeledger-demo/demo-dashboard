@@ -12,6 +12,10 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'Team Health', href: '/team-health', icon: 'pulse' },
   { label: 'Value', href: '/value', icon: 'dollar' },
+  { label: 'Integrity', href: '/integrity', icon: 'shield' },
+  { label: 'Quality', href: '/quality', icon: 'star' },
+  { label: 'Knowledge', href: '/knowledge', icon: 'brain' },
+  { label: 'Efficiency', href: '/efficiency', icon: 'zap' },
   { label: 'CIC History', href: '/cic-history', icon: 'check' },
   { label: 'Release Gates', href: '/release-gates', icon: 'shield' },
   { label: 'Lessons', href: '/lessons', icon: 'book' },
@@ -33,6 +37,9 @@ const iconMap: Record<string, string> = {
   terminal: 'M4 17l6-6-6-6M12 19h8',
   globe: 'M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20',
   dollar: 'M12 1v22M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6',
+  star: 'M12 2l3 7h7l-6 4 2 8-6-5-6 5 2-8-6-4h7z',
+  brain: 'M12 2a4 4 0 00-4 4v2a3 3 0 00-3 3v2a3 3 0 003 3v2a4 4 0 004 4 4 4 0 004-4v-2a3 3 0 003-3v-2a3 3 0 00-3-3V6a4 4 0 00-4-4z',
+  zap: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
 };
 
 export function Sidebar() {

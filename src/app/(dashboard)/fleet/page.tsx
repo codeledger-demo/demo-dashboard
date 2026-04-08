@@ -1,7 +1,25 @@
-import { getFleetData } from '@/lib/api/timeline-queries';
+import Link from 'next/link';
+import {
+  getFleetData,
+  getPatternSpread,
+  getIntegrityMetrics,
+} from '@/lib/api/timeline-queries';
 import { MetricCard } from '@/components/shared/MetricCard';
 import { ConfidenceBadge } from '@/components/shared/ConfidenceBadge';
 import type { FleetRiskAlert, FleetRepoSummary } from '@/lib/api/fixtures';
+import type { ViolationConcentration } from '@/types/dashboard';
+
+const violationTrendArrow: Record<ViolationConcentration['trend'], string> = {
+  up: '↑',
+  down: '↓',
+  flat: '→',
+};
+
+const violationTrendClass: Record<ViolationConcentration['trend'], string> = {
+  up: 'text-red-600',
+  down: 'text-emerald-600',
+  flat: 'text-stone-500',
+};
 
 const severityClasses: Record<FleetRiskAlert['severity'], string> = {
   low: 'bg-emerald-100 text-emerald-700 border-emerald-300',
@@ -29,7 +47,17 @@ function healthClass(score: number): string {
 }
 
 export default async function FleetPage() {
-  const fleet = await getFleetData();
+  const [fleet, patterns, integrity] = await Promise.all([
+    getFleetData(),
+    getPatternSpread(),
+    getIntegrityMetrics(),
+  ]);
+
+  const topPatterns = [...patterns].sort((a, b) => b.reuses - a.reuses).slice(0, 3);
+  const remainingPatterns = Math.max(0, patterns.length - topPatterns.length);
+  const sortedViolations = [...integrity.violationConcentration].sort(
+    (a, b) => b.primaryViolations - a.primaryViolations
+  );
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-10">
@@ -184,6 +212,85 @@ export default async function FleetPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section className="rounded-xl border border-stone-200 bg-surface-card p-6 shadow-sm">
+        <h2 className="font-serif text-lg font-semibold text-stone-900">
+          Pattern Spread — cross-repo reuse
+        </h2>
+        <p className="mt-1 text-xs text-stone-500">Top reused patterns across your repos</p>
+        <div className="mt-4 overflow-hidden rounded-lg border border-stone-200">
+          <table className="w-full text-sm">
+            <thead className="bg-stone-50 text-[10px] font-medium uppercase tracking-wide text-stone-500">
+              <tr>
+                <th className="px-4 py-2 text-left">Pattern Name</th>
+                <th className="px-4 py-2 text-right">Reuses</th>
+                <th className="px-4 py-2 text-right">Repos</th>
+                <th className="px-4 py-2 text-right">Reuse Rate</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {topPatterns.map((p) => (
+                <tr key={p.patternId}>
+                  <td className="px-4 py-2 font-medium text-stone-900">{p.patternName}</td>
+                  <td className="px-4 py-2 text-right font-mono text-stone-700">{p.reuses}</td>
+                  <td className="px-4 py-2 text-right font-mono text-stone-700">{p.reposCovered}</td>
+                  <td className="px-4 py-2 text-right font-mono text-stone-700">
+                    {Math.round(p.reuseRate * 100)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-xs text-stone-500">
+          {remainingPatterns} additional patterns tracked.{' '}
+          <Link href="/knowledge" className="text-brand-primary underline-offset-2 hover:underline">
+            → View Knowledge Cockpit
+          </Link>
+        </p>
+      </section>
+
+      <section className="rounded-xl border border-stone-200 bg-surface-card p-6 shadow-sm">
+        <h2 className="font-serif text-lg font-semibold text-stone-900">
+          Violation Concentration — top drift repos
+        </h2>
+        <p className="mt-1 text-xs text-stone-500">
+          Repos with the highest policy violation counts
+        </p>
+        <div className="mt-4 overflow-hidden rounded-lg border border-stone-200">
+          <table className="w-full text-sm">
+            <thead className="bg-stone-50 text-[10px] font-medium uppercase tracking-wide text-stone-500">
+              <tr>
+                <th className="px-4 py-2 text-left">Repo</th>
+                <th className="px-4 py-2 text-right">Primary</th>
+                <th className="px-4 py-2 text-right">Secondary</th>
+                <th className="px-4 py-2 text-left">Trend</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {sortedViolations.map((v) => (
+                <tr key={v.repo}>
+                  <td className="px-4 py-2 font-mono text-stone-800">{v.repo}</td>
+                  <td className="px-4 py-2 text-right font-mono text-stone-900">
+                    {v.primaryViolations}
+                  </td>
+                  <td className="px-4 py-2 text-right font-mono text-stone-700">
+                    {v.secondaryViolations}
+                  </td>
+                  <td className={`px-4 py-2 font-semibold ${violationTrendClass[v.trend]}`}>
+                    {violationTrendArrow[v.trend]} {v.trend}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-xs text-stone-500">
+          <Link href="/integrity" className="text-brand-primary underline-offset-2 hover:underline">
+            → View Integrity Cockpit
+          </Link>
+        </p>
       </section>
     </div>
   );
