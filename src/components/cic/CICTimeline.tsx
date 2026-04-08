@@ -1,10 +1,18 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useMemo } from 'react';
-import type { CICEntry, CompletionState } from '@/types/dashboard';
+import type { CICEntry, CompletionState, CompletionLadderStep } from '@/types/dashboard';
+import { LADDER_STEP_NAMES } from '@/types/dashboard';
 import { CompletionStateBadge } from '@/components/shared/CompletionStateBadge';
 import { PersonaFilter } from '@/components/cic/PersonaFilter';
 import { CICDetail } from '@/components/cic/CICDetail';
+
+function ladderBadgeClass(step: CompletionLadderStep): string {
+  if (step <= 2) return 'bg-red-100 text-red-700';
+  if (step <= 4) return 'bg-amber-100 text-amber-700';
+  return 'bg-emerald-100 text-emerald-700';
+}
 
 interface CICTimelineProps {
   entries: CICEntry[];
@@ -71,8 +79,16 @@ export function CICTimeline({ entries }: CICTimelineProps) {
               <th className="px-4 py-3">Task</th>
               <th className="px-4 py-3">Developer</th>
               <th className="px-4 py-3">CIC Result</th>
+              <th className="px-4 py-3">Ladder</th>
+              <th
+                className="px-4 py-3 text-right"
+                title="Hours between failure and clean re-submit for the same task. Lower is better."
+              >
+                Time to Remediate
+              </th>
               <th className="px-4 py-3 text-right">Claims</th>
               <th className="px-4 py-3 text-right">Drift</th>
+              <th className="px-4 py-3 text-right">Evidence</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-50">
@@ -96,6 +112,23 @@ export function CICTimeline({ entries }: CICTimelineProps) {
                 <td className="px-4 py-3">
                   <CompletionStateBadge state={entry.completionState} />
                 </td>
+                <td className="px-4 py-3">
+                  {entry.ladderStep ? (
+                    <span
+                      className={`rounded px-2 py-0.5 text-xs font-medium ${ladderBadgeClass(entry.ladderStep)}`}
+                      title={LADDER_STEP_NAMES[entry.ladderStep]}
+                    >
+                      {entry.ladderStep}/7
+                    </span>
+                  ) : (
+                    <span className="text-stone-400">—</span>
+                  )}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-stone-600">
+                  {entry.remediationHours !== undefined
+                    ? `${entry.remediationHours.toFixed(1)}h`
+                    : '—'}
+                </td>
                 <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-stone-700">
                   {entry.verifiedClaimCount}/{entry.claimCount}
                 </td>
@@ -112,11 +145,22 @@ export function CICTimeline({ entries }: CICTimelineProps) {
                     <span className="text-stone-400">--</span>
                   )}
                 </td>
+                <td
+                  className="whitespace-nowrap px-4 py-3 text-right"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Link
+                    href={entry.evidenceUrl ?? '#'}
+                    className={`text-xs hover:underline ${entry.evidenceUrl ? 'text-brand-primary' : 'text-stone-400'}`}
+                  >
+                    View →
+                  </Link>
+                </td>
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-stone-400">
+                <td colSpan={9} className="px-4 py-8 text-center text-stone-400">
                   No entries match the current filters.
                 </td>
               </tr>

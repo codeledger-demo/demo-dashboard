@@ -1,5 +1,6 @@
 import { getFleetData } from '@/lib/api/timeline-queries';
 import { MetricCard } from '@/components/shared/MetricCard';
+import { ConfidenceBadge } from '@/components/shared/ConfidenceBadge';
 import type { FleetRiskAlert, FleetRepoSummary } from '@/lib/api/fixtures';
 
 const severityClasses: Record<FleetRiskAlert['severity'], string> = {
@@ -48,6 +49,26 @@ export default async function FleetPage() {
           Cross-repo intelligence across your engineering portfolio
         </p>
       </header>
+
+      <section className="rounded-xl border border-stone-200 bg-surface-card p-5 shadow-sm">
+        <div className="flex items-start justify-between gap-4">
+          <p className="text-sm text-stone-700">
+            Your fleet of {fleet.totalRepos} repos is{' '}
+            {fleet.criticalRepos === 0 ? 'mostly healthy' : 'showing stress'}.{' '}
+            {fleet.criticalRepos > 0
+              ? `${fleet.criticalRepos} repo${fleet.criticalRepos === 1 ? '' : 's'} need attention.`
+              : 'No critical repos right now.'}{' '}
+            {fleet.preventedIssuesAcrossFleet} prevented issues across the org this month.
+          </p>
+          <ConfidenceBadge
+            confidence={{
+              level: 'medium',
+              eventCount: 87,
+              reason: `Rollup from ${fleet.totalRepos} repos over 30 days`,
+            }}
+          />
+        </div>
+      </section>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <MetricCard

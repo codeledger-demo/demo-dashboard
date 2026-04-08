@@ -1,8 +1,11 @@
 import { ReleaseTimeline } from '@/components/release-gates/ReleaseTimeline';
-import { getReleaseHistory } from '@/lib/api/timeline-queries';
+import { getReleaseHistory, getAllReleaseFindings } from '@/lib/api/timeline-queries';
 
 export default async function ReleaseGatesPage() {
-  const releases = await getReleaseHistory();
+  const [releases, findingsByRelease] = await Promise.all([
+    getReleaseHistory(),
+    getAllReleaseFindings(),
+  ]);
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 p-6 md:p-10">
@@ -15,7 +18,7 @@ export default async function ReleaseGatesPage() {
         </p>
       </div>
 
-      <ReleaseTimeline releases={releases} />
+      <ReleaseTimeline releases={releases} findingsByRelease={findingsByRelease} />
     </div>
   );
 }

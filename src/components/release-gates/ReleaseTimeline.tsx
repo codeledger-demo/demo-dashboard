@@ -1,14 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import type { ReleaseEntry } from '@/types/dashboard';
+import type { ReleaseEntry, ReleaseState, ReleaseFinding } from '@/types/dashboard';
 import { ReleaseStateBadge } from '@/components/shared/ReleaseStateBadge';
 import { ConfidenceBar } from './ConfidenceBar';
 import { GateDetail } from './GateDetail';
 
 interface ReleaseTimelineProps {
   releases: ReleaseEntry[];
+  findingsByRelease?: Record<string, ReleaseFinding[]>;
 }
+
+const ladderStepByReleaseState: Record<ReleaseState, number> = {
+  not_ready: 2,
+  ready_conditional: 4,
+  ready: 5,
+  ready_hardened: 7,
+};
 
 const borderColor: Record<string, string> = {
   not_ready: 'border-l-red-400',
@@ -36,7 +44,7 @@ const statusIcon: Record<string, { path: string; color: string }> = {
   },
 };
 
-export function ReleaseTimeline({ releases }: ReleaseTimelineProps) {
+export function ReleaseTimeline({ releases, findingsByRelease }: ReleaseTimelineProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const sorted = [...releases].sort(
@@ -86,8 +94,14 @@ export function ReleaseTimeline({ releases }: ReleaseTimelineProps) {
               </div>
 
               {/* Confidence */}
-              <div className="hidden sm:block">
+              <div className="hidden items-center gap-2 sm:flex">
                 <ConfidenceBar score={r.confidenceScore} />
+                <span
+                  className="rounded bg-stone-100 px-1.5 py-0.5 font-mono text-[10px] text-stone-600"
+                  title="Average Completion Ladder step (proxy from release state)"
+                >
+                  Ladder {ladderStepByReleaseState[r.releaseState]}/7
+                </span>
               </div>
 
               {/* Findings */}
@@ -110,7 +124,11 @@ export function ReleaseTimeline({ releases }: ReleaseTimelineProps) {
 
             {isExpanded && (
               <div className="ml-9">
-                <GateDetail release={r} onClose={() => setExpandedId(null)} />
+                <GateDetail
+                  release={r}
+                  findings={findingsByRelease?.[r.id] ?? []}
+                  onClose={() => setExpandedId(null)}
+                />
               </div>
             )}
           </div>

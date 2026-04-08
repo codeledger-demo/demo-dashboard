@@ -17,6 +17,13 @@ function passRateColor(passRate: number): string {
   return 'text-semantic-error';
 }
 
+function shadowColor(index: number | undefined): string {
+  if (index === undefined) return 'text-stone-400';
+  if (index <= 0.15) return 'text-semantic-success';
+  if (index <= 0.25) return 'text-semantic-warning';
+  return 'text-semantic-error';
+}
+
 function trendDirection(trend: number): 'up' | 'down' | 'flat' {
   if (trend > 0) return 'up';
   if (trend < 0) return 'down';
@@ -65,6 +72,30 @@ export function PersonaCards({ personas }: PersonaCardsProps) {
               <p className="text-sm font-semibold tabular-nums text-stone-700">
                 {p.lessonsContributed}
               </p>
+            </div>
+          </div>
+
+          <div className="mt-3 space-y-1 border-t border-stone-100 pt-3">
+            <div className="text-xs text-stone-500">
+              Avg ladder:{' '}
+              <span className="font-mono font-semibold text-stone-700">
+                {p.avgLadderStep?.toFixed(1) ?? '—'}/7
+              </span>
+            </div>
+            <div
+              className="text-xs text-stone-500"
+              title="Shadow Knowledge Index — bus-factor proxy [0, 1]. Higher = more concentrated tribal knowledge."
+            >
+              Shadow:{' '}
+              <span className={`font-mono font-semibold ${shadowColor(p.shadowKnowledgeIndex)}`}>
+                {p.shadowKnowledgeIndex?.toFixed(2) ?? '—'}
+              </span>
+            </div>
+            <div className="text-xs text-stone-500">
+              Avg remediation:{' '}
+              <span className="font-mono font-semibold text-stone-700">
+                {p.avgRemediationHours?.toFixed(1) ?? '—'}h
+              </span>
             </div>
           </div>
 
