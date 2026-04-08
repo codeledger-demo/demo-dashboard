@@ -1,16 +1,28 @@
 # Demo Dashboard — Deployment Setup
 
-This document covers running the dashboard locally with a real Postgres backend, and the steps to publish it as a private GitHub repository under `codeledger-demo`.
+This document covers running the dashboard locally, building the static site, and the production deployment chain for `demo.codeledger.dev`.
 
 ## Prerequisites
 
-- Docker Desktop installed (for local Postgres)
 - Node 20+ and pnpm
-- The `synthetic-reality-engine` repo cloned alongside this one
+- Docker Desktop (optional — only for the local live-Postgres mode)
+- The `synthetic-reality-engine` repo cloned alongside this one if you want to regenerate demo fixtures
 
-## Local Development (Fixture Mode)
+## Production Architecture (TL;DR)
 
-The simplest path — no infrastructure required. Fixtures are baked in.
+```
+demo.codeledger.dev
+    → Lovable (hosts codeledger.dev at the apex, detects the demo.* subdomain,
+       client-side redirects to ↓)
+    → codeledger-demo.github.io/demo-dashboard/
+       (static site, served free by GitHub Pages, rebuilt on every push to main)
+```
+
+**The dashboard is a pure static site** — no server runtime, no database in production, no auth. Every page renders from deterministic fixtures. The production build is `next build` with `output: 'export'`.
+
+## Local Development
+
+### Fixture mode (simplest — no infrastructure)
 
 ```bash
 pnpm install
@@ -18,118 +30,82 @@ pnpm dev
 # Open http://localhost:3000
 ```
 
-The dashboard renders all 11 routes against `src/lib/api/fixtures.ts`. Useful for UI work, screenshots, and offline demos.
+Renders all 11 routes against `src/lib/api/fixtures.ts`. Useful for UI work, screenshots, and offline demos.
 
-## Local Development (Live Postgres Mode)
+### Live Postgres mode (optional, for sync testing)
 
-When you want to test the live data path end-to-end:
-
-### 1. Start Postgres
+When you want to test the live data path end-to-end against real simulator output:
 
 ```bash
+# 1. Start Postgres
 pnpm db:up
 # Postgres listening on localhost:5433
 # Schema auto-applied from src/lib/db/schema.sql on first boot
-```
 
-### 2. Bootstrap demo data
-
-In the `synthetic-reality-engine` repo:
-
-```bash
+# 2. Bootstrap demo data from the simulator
 cd ../synthetic-reality-engine
 pnpm bootstrap:seed
-# Writes 60 scenarios → .bootstrap-output/
-```
+# Writes 65 scenarios → .bootstrap-output/
 
-### 3. Sync to Postgres
-
-```bash
+# 3. Sync to Postgres
 cd ../demo-dashboard
 DATABASE_URL=postgres://demo:demo@localhost:5433/demo_dashboard \
   pnpm db:sync --data-dir ../synthetic-reality-engine/.bootstrap-output
-# Should report:
-#   cic_history: 55 inserted
-#   release_history: 3 inserted
-#   lessons: 3 inserted
-```
 
-### 4. Run dev server in live mode
-
-```bash
+# 4. Run dev in live mode
 DATABASE_URL=postgres://demo:demo@localhost:5433/demo_dashboard pnpm dev
+
+# 5. Tear down
+pnpm db:down       # stop container, keep volume
+pnpm db:reset      # stop container AND drop volume (clean slate)
 ```
 
-Now `team-health`, `cic-history`, `lessons`, `release-gates` query Postgres instead of fixtures. The other 4 pages (time-horizon, drift-map, incidents, sandbox) still use fixtures because their data shapes don't have a `live mode` schema yet — `getTimeHorizonData()` etc. throw `not yet implemented in live mode` when `DATABASE_URL` is set, so those pages will error in live mode until the schemas are added.
-
-Alternatively, leave `DATABASE_URL` unset for those routes (they'll fall back to fixtures).
-
-### 5. Tear down
-
-```bash
-pnpm db:down       # Stop container, keep volume
-pnpm db:reset      # Stop container AND drop volume (clean slate)
-```
+**Important:** live mode is *local dev only*. The production build is static and ignores `DATABASE_URL`. Do not set `DATABASE_URL` in the GitHub Actions build.
 
 ## Testing
 
 ```bash
-pnpm test          # Vitest: 22 tests across fixtures, queries, JWT
+pnpm test          # Vitest: 22 tests across fixtures, queries, JWT helpers
 pnpm typecheck     # TypeScript strict
-pnpm build         # Next.js production build
+pnpm build         # Static export → out/
 ```
 
-## Production Deployment (without Vercel)
+The JWT helper tests still exist because the code is kept (harmless, unused at runtime). They'll remain green as long as the library continues to export the expected API.
 
-Per project decision, Vercel is excluded. Options for hosting:
+## Production Deployment
 
-### Option A: Self-hosted with Docker
+### Primary chain: GitHub Pages → Lovable → custom domain
 
-```bash
-pnpm build
-# Build a Docker image with the .next standalone output, run anywhere
-```
+The repo has `.github/workflows/deploy-pages.yml` which runs on every push to `main`:
 
-### Option B: Cloudflare Pages
+1. Checks out the repo
+2. Runs `pnpm install --frozen-lockfile`
+3. Runs `pnpm build` with `NEXT_PUBLIC_BASE_PATH=/demo-dashboard`
+4. Uploads `out/` as a Pages artifact
+5. Deploys to GitHub Pages
 
-Cloudflare Pages supports Next.js via the `@cloudflare/next-on-pages` adapter. You'll need to:
-1. Add the adapter to package.json
-2. Configure the build command to use it
-3. Set environment variables in the Pages dashboard
+The result is live at `https://codeledger-demo.github.io/demo-dashboard/` within ~60 seconds of a push.
 
-### Option C: Render / Railway / Fly
+The branded URL `https://demo.codeledger.dev` is served separately by Lovable (see the Lovable project at `codeledger.lovable.app`). The Lovable app has a client-side redirect that fires when `window.location.hostname === 'demo.codeledger.dev'`, sending visitors to the GitHub Pages build while preserving deep-link paths.
 
-Any platform that runs Node and exposes a Postgres add-on works:
-1. Provision Postgres (use connection string as `DATABASE_URL`)
-2. Run `pnpm build && pnpm start`
-3. Schedule a periodic sync from acme-platform's `.codeledger/` data
+### Why not server-rendered?
 
-## Environment Variables (Production)
+The dashboard in fixture mode has no server-side state — every page is deterministic. Shipping it as static HTML is:
 
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `DASHBOARD_JWT_SECRET` | Yes | Signs invite link JWTs (HS256). Min 32 chars. |
-| `DATABASE_URL` | If using live mode | Postgres connection string |
-| `NEXT_PUBLIC_BASE_URL` | No | For absolute invite link generation, e.g. `https://demo.codeledger.dev` |
+- **Free** (GitHub Pages is free for public repos)
+- **Fast** (CDN-served from GitHub's edge)
+- **Secure** (no attack surface — there's no server)
+- **Honest** (no hidden data, no API calls, everything inspectable in `out/`)
+
+Converting back to a Node server would gain us JWT auth, dynamic data from Postgres, and middleware — none of which add value for a public sales demo.
 
 ## GitHub Organization & Repository Setup
 
-### 1. Create the codeledger-demo organization
-
-If the org doesn't already exist (per `acme-platform/SETUP.md`):
-
-1. Sign in to GitHub as the org owner
-2. Create a new Organization at https://github.com/organizations/new
-3. Org name: `codeledger-demo` (or any name you control)
-4. Plan: Free is fine for private repos with the standard collaborator limit
-
-The same org should host all 3 repos (acme-platform, synthetic-reality-engine, demo-dashboard).
-
-### 2. Create the dashboard repository
+This repo already exists at `github.com/codeledger-demo/demo-dashboard` as **public** (required for free GitHub Pages). If you're setting up a fresh instance:
 
 ```bash
 gh repo create codeledger-demo/demo-dashboard \
-  --private \
+  --public \
   --description "Prospect-facing dashboard for the CodeLedger demo"
 
 cd /path/to/demo-dashboard
@@ -138,88 +114,63 @@ git branch -M main
 git push -u origin main
 ```
 
-Repository should be **private** — invite tokens are issued out-of-band.
+Then enable Pages:
+
+```bash
+gh api -X POST /repos/codeledger-demo/demo-dashboard/pages -f 'build_type=workflow'
+```
+
+On the next push, `deploy-pages.yml` runs and publishes.
+
+## Custom Domain (optional)
+
+If you're setting up a fresh custom domain (not the existing `demo.codeledger.dev`):
+
+### Option A — GitHub Pages directly
+
+1. Create `public/CNAME` containing your domain, e.g. `demo.yourcompany.com`
+2. Drop `NEXT_PUBLIC_BASE_PATH` from the workflow (assets need to resolve at root, not at `/demo-dashboard/`)
+3. Add a `CNAME` DNS record at your DNS provider: `demo` → `codeledger-demo.github.io`
+4. Register the custom domain on the GitHub side:
+   ```bash
+   gh api -X PUT /repos/codeledger-demo/demo-dashboard/pages -f 'cname=demo.yourcompany.com'
+   ```
+5. Wait ~5 min for DNS propagation + SSL provisioning
+
+### Option B — Via an intermediate host (like the current Lovable setup)
+
+1. Point your DNS at the intermediate host (Lovable, Cloudflare Worker, Netlify, etc.)
+2. That host does a client-side or HTTP-level redirect to `codeledger-demo.github.io/demo-dashboard/`
+3. Preserves the branded URL for marketing purposes while the actual content stays on GitHub Pages
+
+Option B is what's in place today (`demo.codeledger.dev` → Lovable → GitHub Pages).
 
 ## Bot Accounts (Not Required for the Dashboard)
 
-Unlike `acme-platform`, the dashboard does NOT need the three bot persona
-accounts (Sara/Marcus/Priya). Those are only used by `synthetic-reality-engine`
-to author commits and PRs. The dashboard reads their generated CIC results
-out of Postgres — it doesn't write back to GitHub.
-
-If you do want to add a periodic sync GitHub Action that pulls fresh
-acme-platform data and runs `pnpm db:sync`, that workflow can authenticate
-with a single read-only PAT (one of the persona PATs is fine, or a dedicated
-"sync-bot" account).
+Unlike `acme-platform`, the dashboard does NOT need the three bot persona accounts (Sara/Marcus/Priya). Those are only used by `synthetic-reality-engine` to author commits and PRs. The dashboard reads their generated CIC results out of fixtures — it doesn't write back to GitHub.
 
 ## GitHub Actions Secrets
 
-The dashboard repo only needs secrets if you add the periodic sync workflow
-described in "Data Sync Schedule" below. Required secrets:
+The deploy workflow does NOT require any secrets beyond the built-in `GITHUB_TOKEN` (which GitHub provisions automatically for Pages deploys). No PATs, no database URL, no JWT secret — the build is pure and hermetic.
 
-| Secret | Purpose | How to obtain |
-|--------|---------|---------------|
-| `DATABASE_URL` | Postgres connection string for the production DB | From your hosting provider (Neon, Supabase, Render, etc.) |
-| `DASHBOARD_JWT_SECRET` | Signs invite link JWTs. **Min 32 characters.** | Generate locally: `openssl rand -hex 32` |
-| `ACME_REPO_TOKEN` | Read-only PAT for cloning acme-platform during sync | Create on a bot account with `repo:read` scope only |
+## Environment Variables Reference
 
-To set them:
-
-```bash
-gh secret set DATABASE_URL --repo codeledger-demo/demo-dashboard
-gh secret set DASHBOARD_JWT_SECRET --repo codeledger-demo/demo-dashboard
-gh secret set ACME_REPO_TOKEN --repo codeledger-demo/demo-dashboard
-```
-
-For local development, put the same values in `.env.local` (gitignored).
-
-## Production Environment Variables Summary
-
-Set these on your hosting platform (Render/Railway/Fly/etc.):
-
-| Variable | Required | Notes |
-|----------|----------|-------|
-| `DASHBOARD_JWT_SECRET` | Yes | Without this, all invite tokens fail verification (loud security warning) |
-| `DATABASE_URL` | Yes (live mode) | Omit to fall back to fixture mode |
-| `NEXT_PUBLIC_BASE_URL` | No | E.g. `https://demo.codeledger.dev` |
-
-## Generating Invite Tokens
-
-The `createInviteToken` function in `src/lib/auth/jwt.ts` produces signed JWTs. Build a one-off script or REST endpoint to generate them:
-
-```typescript
-import { createInviteToken } from '@/lib/auth/jwt';
-
-const token = await createInviteToken({
-  sub: 'prospect-viewer',
-  email: 'cto@prospect.com',
-  scope: 'read-only',
-  expiresInDays: 14,
-});
-
-console.log(`https://demo.codeledger.dev/invite/${token}`);
-```
-
-## Data Sync Schedule (Production)
-
-The recommended schedule for syncing acme-platform's CodeLedger output into the dashboard's Postgres:
-
-- **GitHub Actions cron** in `acme-platform`: dump `.codeledger/` data to a JSON artifact every hour
-- **Webhook from acme-platform** to a sync endpoint: pull the artifact and run `ecl-sync.ts`
-
-Or simpler: a cron-based GitHub Action in this repo that checks out acme-platform and runs `pnpm db:sync` directly. See `synthetic-reality-engine/SETUP.md` for the bootstrap command.
+| Variable | Used where | Purpose |
+|----------|-----------|---------|
+| `NEXT_PUBLIC_BASE_PATH` | Build time (CI) | `/demo-dashboard` when targeting github.io, empty when targeting a custom domain at root |
+| `DATABASE_URL` | Local dev only | Enables live Postgres mode. Never set in production. |
 
 ## Troubleshooting
 
-**`getDb()` fails with `DATABASE_URL is not set`**: Either set the env var or remove it to fall back to fixture mode.
+**Pages build succeeds but routes 404**: Check `trailingSlash: true` is set in `next.config.mjs`. Without it, GitHub Pages serves `team-health.html` but not `team-health/` and internal links break.
 
-**`column "completion_state" does not exist`**: Schema may not have applied. Run `pnpm db:reset` to recreate the volume.
+**Assets 404 after switching between github.io and custom domain**: `basePath` must match the deployment target. Set `NEXT_PUBLIC_BASE_PATH=/demo-dashboard` for github.io, leave unset for a root-served custom domain.
 
-**Page errors in live mode for time-horizon/drift-map/incidents/sandbox**: Expected — those query functions throw `not yet implemented in live mode` because their schemas aren't migrated yet. Use fixture mode for those routes or extend the sync layer.
+**Tests pass locally but CI fails**: Check that `pnpm-lock.yaml` is committed and up to date (`pnpm install --frozen-lockfile` enforces it).
 
-**Middleware redirect loop**: Check `DASHBOARD_JWT_SECRET` is set in production. The middleware uses a per-boot random fallback when the secret is missing, which causes all tokens to fail verification.
+**Custom domain works but shows `codeledger-demo.github.io` in the URL bar after a redirect**: That's expected if you're using the Lovable intermediate-host approach. The only way to keep the branded URL in the bar for the entire session is a reverse proxy (Cloudflare Worker) or deploying the static assets directly to the custom domain's origin.
 
 ## Related
 
-- `acme-platform/SETUP.md` — target repo deployment
-- `synthetic-reality-engine/SETUP.md` — simulator + bootstrap
+- [`acme-platform/SETUP.md`](https://github.com/codeledger-demo/acme-platform/blob/main/SETUP.md) — target repo deployment
+- [`synthetic-reality-engine/SETUP.md`](https://github.com/codeledger-demo/synthetic-reality-engine/blob/main/SETUP.md) — simulator + bootstrap
