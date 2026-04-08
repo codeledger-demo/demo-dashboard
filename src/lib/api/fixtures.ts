@@ -673,3 +673,101 @@ export const FIXTURE_HEALTH_SNAPSHOTS = [
   { snapshotAt: '2026-03-01T00:00:00Z', score: 87 },
   { snapshotAt: '2026-03-04T00:00:00Z', score: 84 },
 ];
+
+// ---------- Fleet (v0.9.2 Enterprise tier) ----------
+
+export interface FleetRepoSummary {
+  repoName: string;
+  healthScore: number;
+  cicPassRate: number;
+  releaseTruth24h: { pass: number; warn: number; fail: number };
+  releaseTruth7d: { pass: number; warn: number; fail: number };
+  riskTrend: 'stable' | 'rising' | 'falling';
+}
+
+export interface FleetRiskAlert {
+  id: string;
+  triggeredAt: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  affectedRepos: string[];
+  pattern: string;
+  windowComparison: string;
+}
+
+export interface FleetData {
+  totalRepos: number;
+  healthyRepos: number;
+  warningRepos: number;
+  criticalRepos: number;
+  repos: FleetRepoSummary[];
+  activeAlerts: FleetRiskAlert[];
+  preventedIssuesAcrossFleet: number;
+}
+
+export const FIXTURE_FLEET_DATA: FleetData = {
+  totalRepos: 5,
+  healthyRepos: 3,
+  warningRepos: 1,
+  criticalRepos: 1,
+  preventedIssuesAcrossFleet: 47,
+  repos: [
+    {
+      repoName: 'acme-platform',
+      healthScore: 88,
+      cicPassRate: 94,
+      releaseTruth24h: { pass: 12, warn: 1, fail: 0 },
+      releaseTruth7d: { pass: 78, warn: 4, fail: 1 },
+      riskTrend: 'stable',
+    },
+    {
+      repoName: 'acme-data-pipeline',
+      healthScore: 72,
+      cicPassRate: 81,
+      releaseTruth24h: { pass: 6, warn: 2, fail: 1 },
+      releaseTruth7d: { pass: 38, warn: 9, fail: 3 },
+      riskTrend: 'rising',
+    },
+    {
+      repoName: 'acme-mobile',
+      healthScore: 85,
+      cicPassRate: 90,
+      releaseTruth24h: { pass: 8, warn: 0, fail: 0 },
+      releaseTruth7d: { pass: 52, warn: 3, fail: 0 },
+      riskTrend: 'stable',
+    },
+    {
+      repoName: 'acme-internal-tools',
+      healthScore: 58,
+      cicPassRate: 68,
+      releaseTruth24h: { pass: 3, warn: 2, fail: 3 },
+      releaseTruth7d: { pass: 21, warn: 12, fail: 7 },
+      riskTrend: 'rising',
+    },
+    {
+      repoName: 'acme-marketing-site',
+      healthScore: 91,
+      cicPassRate: 96,
+      releaseTruth24h: { pass: 5, warn: 0, fail: 0 },
+      releaseTruth7d: { pass: 34, warn: 1, fail: 0 },
+      riskTrend: 'falling',
+    },
+  ],
+  activeAlerts: [
+    {
+      id: 'alert-2026-04-08-auth-billing',
+      triggeredAt: '2026-04-08T14:22:00Z',
+      severity: 'high',
+      affectedRepos: ['acme-platform', 'acme-data-pipeline'],
+      pattern: '24h failure concentration in auth/billing services',
+      windowComparison: '24h: 4 fails | 7d avg: 0.6 fails | 30d avg: 0.3 fails',
+    },
+    {
+      id: 'alert-2026-04-07-test-coverage',
+      triggeredAt: '2026-04-07T09:10:00Z',
+      severity: 'medium',
+      affectedRepos: ['acme-internal-tools'],
+      pattern: '7d test coverage decline across reporting modules',
+      windowComparison: '7d: -8.4% coverage | 30d avg: -0.9% | 90d avg: +0.2%',
+    },
+  ],
+};

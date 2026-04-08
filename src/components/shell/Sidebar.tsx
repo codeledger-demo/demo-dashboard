@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
   { label: 'Drift Map', href: '/drift-map', icon: 'map' },
   { label: 'Incidents', href: '/incidents', icon: 'alert' },
   { label: 'Sandbox', href: '/sandbox', icon: 'terminal' },
+  { label: 'Fleet Insights · Enterprise', href: '/fleet', icon: 'globe' },
 ];
 
 const iconMap: Record<string, string> = {
@@ -29,6 +30,7 @@ const iconMap: Record<string, string> = {
   map: 'M3 7l6-3 6 3 6-3v14l-6 3-6-3-6 3V7z',
   alert: 'M12 9v4m0 4h.01M12 2L2 20h20L12 2z',
   terminal: 'M4 17l6-6-6-6M12 19h8',
+  globe: 'M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20',
 };
 
 export function Sidebar() {

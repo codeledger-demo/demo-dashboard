@@ -25,6 +25,8 @@ import {
   FIXTURE_DRIFT_MAP_EDGES,
   FIXTURE_NAMED_INCIDENTS,
   FIXTURE_SANDBOX_SCENARIOS,
+  FIXTURE_FLEET_DATA,
+  type FleetData,
   type HorizonMetrics,
   type ArcDef,
   type IncidentMarker,
@@ -412,4 +414,13 @@ export async function getSandboxScenarios(): Promise<SandboxScenario[]> {
     return FIXTURE_SANDBOX_SCENARIOS;
   }
   throw new Error('getSandboxScenarios: not yet implemented in live mode');
+}
+
+// ---------- Fleet ----------
+
+export async function getFleetData(): Promise<FleetData> {
+  if (!isLiveMode()) {
+    return FIXTURE_FLEET_DATA;
+  }
+  throw new Error('getFleetData: not yet implemented in live mode');
 }

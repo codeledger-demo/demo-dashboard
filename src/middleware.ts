@@ -11,6 +11,7 @@ const PROTECTED_PATHS = [
   '/release-gates',
   '/incidents',
   '/sandbox',
+  '/fleet',
 ];
 
 let warnedMissingSecret = false;
@@ -76,5 +77,6 @@ export const config = {
     '/release-gates/:path*',
     '/incidents/:path*',
     '/sandbox/:path*',
+    '/fleet/:path*',
   ],
 };
