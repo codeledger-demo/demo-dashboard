@@ -74,6 +74,32 @@ export function LessonCard({ lesson }: LessonCardProps) {
         <span>First seen: {firstSeen}</span>
         {lastTriggered && <span>Last triggered: {lastTriggered}</span>}
       </div>
+
+      {lesson.contributor && (
+        <div className="mt-2 flex items-center gap-1.5 text-xs text-stone-500">
+          <span aria-hidden className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-stone-200 text-[9px] font-semibold text-stone-600">
+            {lesson.contributor.charAt(0).toUpperCase()}
+          </span>
+          <span>Contributed by {lesson.contributor}</span>
+        </div>
+      )}
+
+      <div className="mt-3">
+        {lesson.activePreventionCount && lesson.activePreventionCount > 0 ? (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
+            <div className="flex items-baseline gap-2">
+              <span className="font-mono text-xl font-bold text-semantic-success">
+                {lesson.activePreventionCount}
+              </span>
+              <span className="text-[11px] font-medium uppercase tracking-wide text-emerald-700">
+                CIC passes guided
+              </span>
+            </div>
+          </div>
+        ) : (
+          <span className="text-xs text-stone-400">No preventions yet</span>
+        )}
+      </div>
     </div>
   );
 }

@@ -699,6 +699,14 @@ export const FIXTURE_SANDBOX_SCENARIOS: SandboxScenario[] = [
     difficulty: 'advanced',
     expectedOutcome: 'not_ready',
   },
+  {
+    id: 'silent-warn-accumulation',
+    title: 'Silent WARN Accumulation',
+    description:
+      '5 PRs each with a single CIC warning. Individually they pass. Collectively they push architecture health below threshold. Will CodeLedger catch the pattern?',
+    difficulty: 'intermediate',
+    expectedOutcome: 'verified_with_drift',
+  },
 ];
 
 export const FIXTURE_HEALTH_SNAPSHOTS = [
@@ -724,6 +732,8 @@ export interface FleetRepoSummary {
   releaseTruth24h: { pass: number; warn: number; fail: number };
   releaseTruth7d: { pass: number; warn: number; fail: number };
   riskTrend: 'stable' | 'rising' | 'falling';
+  /** ISO date (YYYY-MM-DD) of the last clean release. */
+  lastReleaseDate?: string;
 }
 
 export interface FleetRiskAlert {
@@ -759,6 +769,7 @@ export const FIXTURE_FLEET_DATA: FleetData = {
       releaseTruth24h: { pass: 12, warn: 1, fail: 0 },
       releaseTruth7d: { pass: 78, warn: 4, fail: 1 },
       riskTrend: 'stable',
+      lastReleaseDate: '2026-03-04',
     },
     {
       repoName: 'acme-data-pipeline',
@@ -767,6 +778,7 @@ export const FIXTURE_FLEET_DATA: FleetData = {
       releaseTruth24h: { pass: 6, warn: 2, fail: 1 },
       releaseTruth7d: { pass: 38, warn: 9, fail: 3 },
       riskTrend: 'rising',
+      lastReleaseDate: '2026-02-28',
     },
     {
       repoName: 'acme-mobile',
@@ -775,6 +787,7 @@ export const FIXTURE_FLEET_DATA: FleetData = {
       releaseTruth24h: { pass: 8, warn: 0, fail: 0 },
       releaseTruth7d: { pass: 52, warn: 3, fail: 0 },
       riskTrend: 'stable',
+      lastReleaseDate: '2026-03-02',
     },
     {
       repoName: 'acme-internal-tools',
@@ -783,6 +796,7 @@ export const FIXTURE_FLEET_DATA: FleetData = {
       releaseTruth24h: { pass: 3, warn: 2, fail: 3 },
       releaseTruth7d: { pass: 21, warn: 12, fail: 7 },
       riskTrend: 'rising',
+      lastReleaseDate: '2026-03-28',
     },
     {
       repoName: 'acme-marketing-site',
@@ -791,6 +805,7 @@ export const FIXTURE_FLEET_DATA: FleetData = {
       releaseTruth24h: { pass: 5, warn: 0, fail: 0 },
       releaseTruth7d: { pass: 34, warn: 1, fail: 0 },
       riskTrend: 'falling',
+      lastReleaseDate: '2026-03-03',
     },
   ],
   activeAlerts: [

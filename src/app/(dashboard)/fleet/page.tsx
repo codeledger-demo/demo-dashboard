@@ -40,6 +40,15 @@ const trendClass: Record<FleetRepoSummary['riskTrend'], string> = {
   falling: 'text-emerald-600',
 };
 
+function formatLastRelease(iso: string | undefined): { label: string; stale: boolean } {
+  if (!iso) return { label: '—', stale: false };
+  const d = new Date(iso + 'T00:00:00Z');
+  const now = new Date('2026-04-08T00:00:00Z');
+  const ageDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+  const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  return { label, stale: ageDays > 7 };
+}
+
 function healthClass(score: number): string {
   if (score >= 85) return 'text-emerald-700';
   if (score >= 70) return 'text-amber-700';
@@ -173,13 +182,16 @@ export default async function FleetPage() {
                 <th className="px-4 py-3">Repo</th>
                 <th className="px-4 py-3">Health</th>
                 <th className="px-4 py-3">CIC Pass Rate</th>
+                <th className="px-4 py-3">Last Release</th>
                 <th className="px-4 py-3">24h Releases</th>
                 <th className="px-4 py-3">7d Releases</th>
                 <th className="px-4 py-3">Risk Trend</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {fleet.repos.map((repo) => (
+              {fleet.repos.map((repo) => {
+                const lastRelease = formatLastRelease(repo.lastReleaseDate);
+                return (
                 <tr key={repo.repoName}>
                   <td className="px-4 py-3 font-mono text-stone-800">
                     {repo.repoName}
@@ -189,6 +201,9 @@ export default async function FleetPage() {
                   </td>
                   <td className="px-4 py-3 tabular-nums text-stone-700">
                     {repo.cicPassRate}%
+                  </td>
+                  <td className={`px-4 py-3 tabular-nums ${lastRelease.stale ? 'text-red-600 font-semibold' : 'text-stone-700'}`}>
+                    {lastRelease.label}
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-stone-600">
                     <span className="text-emerald-700">{repo.releaseTruth24h.pass}P</span>
@@ -208,7 +223,8 @@ export default async function FleetPage() {
                     {trendArrow[repo.riskTrend]} {repo.riskTrend}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
