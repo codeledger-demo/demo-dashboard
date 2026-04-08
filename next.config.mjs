@@ -6,6 +6,11 @@ const nextConfig = {
   // Pages, Netlify, S3, or any HTTP server.
   output: 'export',
 
+  // Emit each route as <route>/index.html instead of <route>.html.
+  // This matches GitHub Pages' default directory-based serving so
+  // URLs like /team-health/ work without a trailing slash workaround.
+  trailingSlash: true,
+
   // GitHub Pages serves from /<repo-name>/ by default. The basePath and
   // assetPrefix are controlled by the NEXT_PUBLIC_BASE_PATH env var so
   // the same build can target either github.io/demo-dashboard or a
