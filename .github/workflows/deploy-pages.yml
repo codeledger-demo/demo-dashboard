@@ -46,17 +46,18 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build static site
-        env:
-          # github.io serves from /<repo-name>/ — set basePath to match.
-          # The primary production target is demo.codeledger.dev on Lovable,
-          # which is configured separately (not via GitHub Pages). This
-          # workflow keeps github.io/demo-dashboard/ working as a reliable
-          # fallback and as a build verification check.
-          NEXT_PUBLIC_BASE_PATH: /demo-dashboard
+        # No NEXT_PUBLIC_BASE_PATH — the site now serves at the root of
+        # demo.codeledger.dev (custom domain is configured in this repo's
+        # Pages settings via public/CNAME). github.io/demo-dashboard/ will
+        # 404 on assets after this change; that path is intentionally
+        # superseded by the custom domain.
         run: pnpm build
 
       - name: Add .nojekyll (prevent Jekyll processing)
         run: touch out/.nojekyll
+
+      - name: Copy CNAME into build output
+        run: cp public/CNAME out/CNAME
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
