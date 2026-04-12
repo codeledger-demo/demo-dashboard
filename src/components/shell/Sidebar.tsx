@@ -24,6 +24,11 @@ const navItems: NavItem[] = [
   { label: 'Incidents', href: '/incidents', icon: 'alert' },
   { label: 'Sandbox', href: '/sandbox', icon: 'terminal' },
   { label: 'Fleet Insights · Enterprise', href: '/fleet', icon: 'globe' },
+  { label: 'Explain', href: '/explain', icon: 'book' },
+  { label: 'Learnings', href: '/learnings', icon: 'brain' },
+  { label: 'Next Actions', href: '/next-actions', icon: 'zap' },
+  { label: 'Truth Timeline', href: '/truth-timeline', icon: 'shield' },
+  { label: 'Golden Patterns', href: '/golden-patterns', icon: 'star' },
 ];
 
 const iconMap: Record<string, string> = {

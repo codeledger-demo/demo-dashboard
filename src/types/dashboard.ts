@@ -332,3 +332,73 @@ export interface DataModeInfo {
   /** Copy for the banner. */
   sampleBannerText?: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 2: Explainability & Intelligence (v0.10.8)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ExplainEntry {
+  id: string;
+  runId: string;
+  timestamp: string;
+  outcome: { status: 'PASS' | 'WARN' | 'BLOCK'; summary: string };
+  why: Array<{ reason: string; evidenceId?: string }>;
+  evidence: Array<{ label: string; value: string; source: string }>;
+  contextAnalysis: { isc: number; ccs: number; truthGrade: string };
+  confidenceBreakdown: Record<string, number>;
+}
+
+export interface LearningPattern {
+  name: string;
+  occurrences: number;
+  successRate: number;
+  trend: 'improving' | 'stable' | 'degrading';
+  hotspotFiles: string[];
+  contributingEntries: string[];
+}
+
+export interface LearningsEntry {
+  id: string;
+  windowLabel: string;
+  generatedAt: string;
+  topPatterns: LearningPattern[];
+  recommendations: string[];
+}
+
+export interface NextAction {
+  title: string;
+  confidence: number;
+  basedOn: string[];
+  expectedImpact: string;
+}
+
+export interface NextEntry {
+  id: string;
+  generatedAt: string;
+  actions: NextAction[];
+  rationale: string;
+}
+
+export interface TruthTimelineEvent {
+  id: string;
+  type: 'VERIFY_RUN' | 'TRUTH_SNAPSHOT' | 'EVIDENCE_CAPTURED' | 'RISK_ALERT' | 'HOTSPOT_OBSERVED';
+  timestamp: string;
+  commitSha: string;
+  truthGrade: 'A' | 'B' | 'C' | 'D' | 'F';
+  summary: string;
+  details: Record<string, unknown>;
+}
+
+export interface GoldenPattern {
+  id: string;
+  label: string;
+  description: string;
+  author: string;
+  authorEmoji: string;
+  confidence: number;
+  verifications: number;
+  keywords: string[];
+  typicalFiles: string[];
+  extractedFrom: string;
+  referencedInPRs: number;
+}

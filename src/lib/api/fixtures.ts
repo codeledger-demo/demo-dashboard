@@ -1244,3 +1244,116 @@ export const FIXTURE_SAMPLE_BANNER: DataModeInfo = {
   sampleBannerText:
     "You're viewing sample data — a synthetic team (Sara, Marcus, Priya) 10 weeks into using CodeLedger. Start using CodeLedger on your own repo to see your team's real metrics here.",
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 2 Fixtures (v0.10.8)
+// ─────────────────────────────────────────────────────────────────────────────
+
+import type { ExplainEntry, LearningsEntry, NextEntry, TruthTimelineEvent, GoldenPattern } from '@/types/dashboard';
+
+export const FIXTURE_EXPLAIN_HISTORY: ExplainEntry[] = [
+  {
+    id: 'exp-001',
+    runId: 'run-158',
+    timestamp: '2026-04-11T10:00:00Z',
+    outcome: { status: 'PASS', summary: 'All integrity checks satisfied — webhook delivery tracking follows golden pattern' },
+    why: [
+      { reason: 'All route handlers include runtime validation at the boundary, consistent with golden pattern GP-004', evidenceId: 'ecl-158' },
+      { reason: 'The delivery tracker correctly imports from packages/shared-utils/src/logger.ts per immutable wire', evidenceId: 'st-003' },
+      { reason: 'Test coverage includes both success and failure delivery paths', evidenceId: 'eg-005' },
+    ],
+    evidence: [
+      { label: 'ISC Signal', value: 'Task intent precise with constraints specified → ISC 0.92', source: 'isc' },
+      { label: 'CCS Signal', value: 'Bundle covered all webhook dispatcher files + shared retry → CCS 0.89', source: 'ccs' },
+      { label: 'ECL History', value: '4 prior webhook PRs by Sara all passed with confidence >0.85', source: 'ecl' },
+      { label: 'Golden Pattern', value: 'GP-005 (Retry with Backoff Pattern) matched', source: 'golden-patterns' },
+    ],
+    contextAnalysis: { isc: 0.92, ccs: 0.89, truthGrade: 'A' },
+    confidenceBreakdown: { intentConfidence: 0.92, dependencyCoverage: 0.88, testCoverage: 0.91, structuralValidity: 0.87, stakeholderCoverage: 0.85 },
+  },
+  {
+    id: 'exp-002',
+    runId: 'run-152',
+    timestamp: '2026-04-10T14:00:00Z',
+    outcome: { status: 'WARN', summary: '1 P1 finding — promo route missing runtime validation' },
+    why: [
+      { reason: 'Route handler POST /billing/promo accepts promoCode without runtime type guard — financial data requires boundary validation', evidenceId: 'ri-001' },
+      { reason: 'Direct new Date() in promo-validator.ts bypasses shared-utils timezone-safe date handling', evidenceId: 'ri-002' },
+      { reason: '2 prior billing PRs by Marcus had identical runtime-validation findings', evidenceId: 'ecl-147' },
+    ],
+    evidence: [
+      { label: 'ISC Signal', value: 'Clear intent but no discount bound constraints → ISC 0.82', source: 'isc' },
+      { label: 'CCS Signal', value: 'Missed packages/validation/billing.ts in bundle → CCS 0.64', source: 'ccs' },
+      { label: 'ECL History', value: 'ECL entries #147, #152 show same pattern in billing service', source: 'ecl' },
+    ],
+    contextAnalysis: { isc: 0.82, ccs: 0.64, truthGrade: 'B' },
+    confidenceBreakdown: { intentConfidence: 0.82, dependencyCoverage: 0.61, testCoverage: 0.72, structuralValidity: 0.68, stakeholderCoverage: 0.55 },
+  },
+  {
+    id: 'exp-003',
+    runId: 'run-140',
+    timestamp: '2026-04-08T11:30:00Z',
+    outcome: { status: 'BLOCK', summary: 'Immutable wire violation — auth token refresh bypassed centralized JWT verification' },
+    why: [
+      { reason: 'services/auth/routes/refresh.ts imports a local JWT helper instead of services/auth/middleware/jwt-verify.ts — violates immutable wire', evidenceId: 'st-001' },
+      { reason: 'The local helper was AI-generated and not imported by the middleware barrel export (ghost file pattern)', evidenceId: 'ecl-118' },
+      { reason: 'Evidence gate eg-001 requires "observed" tier for auth middleware changes — only "possible" evidence present', evidenceId: 'eg-001' },
+    ],
+    evidence: [
+      { label: 'ISC Signal', value: 'Vague intent ("refactor auth token refresh") → ISC 0.58', source: 'isc' },
+      { label: 'CCS Signal', value: 'Bundle missed jwt-verify.ts dependency → CCS 0.42', source: 'ccs' },
+      { label: 'Structural Trust', value: 'Immutable wire violation: login route → jwt-verify.ts', source: 'structural-trust' },
+      { label: 'Evidence Gate', value: 'eg-001 requires "observed" tier — only "possible" evidence found', source: 'evidence-gates' },
+    ],
+    contextAnalysis: { isc: 0.58, ccs: 0.42, truthGrade: 'C' },
+    confidenceBreakdown: { intentConfidence: 0.58, dependencyCoverage: 0.38, testCoverage: 0.31, structuralValidity: 0.25, stakeholderCoverage: 0.40 },
+  },
+];
+
+export const FIXTURE_LEARNINGS: LearningsEntry = {
+  id: 'learn-001',
+  windowLabel: 'Last 30 days',
+  generatedAt: '2026-04-12T00:00:00Z',
+  topPatterns: [
+    { name: 'missing-runtime-validation', occurrences: 4, successRate: 0.25, trend: 'stable', hotspotFiles: ['services/billing/src/routes/promo-codes.ts', 'services/billing/src/routes/invoices.ts'], contributingEntries: ['ecl-108', 'ecl-147', 'ecl-152', 'ecl-125'] },
+    { name: 'auth-middleware-failure', occurrences: 3, successRate: 0.33, trend: 'improving', hotspotFiles: ['services/auth/src/middleware/jwt-verify.ts', 'services/auth/src/routes/refresh.ts'], contributingEntries: ['ecl-118', 'ecl-140', 'ecl-089'] },
+    { name: 'shared-utils-bypass', occurrences: 2, successRate: 0.0, trend: 'stable', hotspotFiles: ['services/billing/src/services/promo-validator.ts', 'services/notifications/src/queue/processor.ts'], contributingEntries: ['ecl-125', 'ecl-152'] },
+    { name: 'golden-pattern-compliance', occurrences: 8, successRate: 0.88, trend: 'improving', hotspotFiles: ['services/auth/src/middleware/jwt-verify.ts', 'services/billing/src/webhooks/stripe-handler.ts'], contributingEntries: ['ecl-078', 'ecl-089', 'ecl-095', 'ecl-101', 'ecl-112', 'ecl-145', 'ecl-158', 'ecl-133'] },
+  ],
+  recommendations: [
+    'Add runtime validation linting rule for route handlers in billing service — 4 recurring violations',
+    'Promote evidence gate eg-002 from "likely" to "observed" for billing subscription changes',
+    'Create golden pattern for notification queue processor — Priya\'s latest implementation passed cleanly',
+    'Schedule pair review for junior PRs touching auth middleware — pattern improving but not yet stable',
+  ],
+};
+
+export const FIXTURE_NEXT_ACTIONS: NextEntry = {
+  id: 'next-001',
+  generatedAt: '2026-04-12T00:00:00Z',
+  actions: [
+    { title: 'Add runtime validation lint rule for billing routes', confidence: 0.91, basedOn: ['4 recurring missing-runtime-validation findings in billing service', 'ECL entries #108, #147, #152 all flagged same pattern', 'ADR-007 mandates shared validation package'], expectedImpact: 'Prevent ~2 P1 findings per sprint in billing service' },
+    { title: 'Upgrade auth evidence gate to "observed" tier', confidence: 0.84, basedOn: ['3 auth-middleware-failure occurrences in 30 days', 'Evidence gate eg-001 already requires "observed" for JWT changes', 'Priya\'s latest auth fix included integration tests'], expectedImpact: 'Block insufficiently-tested auth changes before merge' },
+    { title: 'Extract notification queue golden pattern from ECL-150', confidence: 0.72, basedOn: ['Priya\'s Slack notification channel PR passed with confidence 0.76', 'Queue processor pattern now consistent across 2 implementations', 'No failure vector in latest entry'], expectedImpact: 'Guide future notification PRs with validated queue pattern' },
+  ],
+  rationale: 'Actions ranked by confidence score derived from ECL occurrence frequency, severity of prevented issues, and historical effectiveness of similar interventions.',
+};
+
+export const FIXTURE_TRUTH_TIMELINE: TruthTimelineEvent[] = [
+  { id: 'tt-001', type: 'TRUTH_SNAPSHOT', timestamp: '2026-04-01T09:00:00Z', commitSha: 'a1b2c3d', truthGrade: 'A', summary: 'Clean baseline — FRESH remote, CI present', details: {} },
+  { id: 'tt-002', type: 'VERIFY_RUN', timestamp: '2026-04-03T15:00:00Z', commitSha: 'b2c3d4e', truthGrade: 'A', summary: 'Stripe webhook handler verified — 0 findings', details: {} },
+  { id: 'tt-003', type: 'EVIDENCE_CAPTURED', timestamp: '2026-04-05T10:00:00Z', commitSha: 'c3d4e5f', truthGrade: 'B', summary: 'CI evidence captured for notification queue PR', details: {} },
+  { id: 'tt-004', type: 'RISK_ALERT', timestamp: '2026-04-07T14:30:00Z', commitSha: 'd4e5f6a', truthGrade: 'C', summary: 'RISK_SPIKE: 3 WARN findings in auth service within 24h', details: {} },
+  { id: 'tt-005', type: 'TRUTH_SNAPSHOT', timestamp: '2026-04-08T10:30:00Z', commitSha: 'e5f6a7b', truthGrade: 'C', summary: 'Auth incident — stale remote, missing CI evidence', details: {} },
+  { id: 'tt-006', type: 'HOTSPOT_OBSERVED', timestamp: '2026-04-08T16:00:00Z', commitSha: 'f6a7b8c', truthGrade: 'C', summary: 'Hotspot: services/auth/middleware/ — 3 changes in 48h', details: {} },
+  { id: 'tt-007', type: 'VERIFY_RUN', timestamp: '2026-04-10T09:45:00Z', commitSha: 'a7b8c9d', truthGrade: 'B', summary: 'Post-incident recovery — 1 P2 finding remaining', details: {} },
+  { id: 'tt-008', type: 'TRUTH_SNAPSHOT', timestamp: '2026-04-11T10:00:00Z', commitSha: 'b8c9d0e', truthGrade: 'A', summary: 'Recovery complete — FRESH remote, CI present, clean worktree', details: {} },
+];
+
+export const FIXTURE_GOLDEN_PATTERNS: GoldenPattern[] = [
+  { id: 'GP-001', label: 'Auth Middleware Pattern', description: 'Centralized JWT verification with error propagation through shared error types', author: 'Sara Chen', authorEmoji: '🟢', confidence: 0.95, verifications: 3, keywords: ['auth', 'jwt', 'middleware'], typicalFiles: ['services/auth/middleware/jwt-verify.ts', 'packages/shared-utils/src/errors.ts'], extractedFrom: 'ECL #089 — 3x verified, 0 failures', referencedInPRs: 5 },
+  { id: 'GP-002', label: 'Stripe Webhook Handler', description: 'Idempotent webhook processing with event deduplication and ordered handling', author: 'Sara Chen', authorEmoji: '🟢', confidence: 0.91, verifications: 2, keywords: ['billing', 'stripe', 'webhook'], typicalFiles: ['services/billing/webhooks/stripe-handler.ts'], extractedFrom: 'ECL #112 — 2x verified, 0 failures', referencedInPRs: 3 },
+  { id: 'GP-003', label: 'Shared Validation Pattern', description: 'Runtime validation through packages/validation per ADR-007', author: 'Sara Chen', authorEmoji: '🟢', confidence: 0.93, verifications: 5, keywords: ['validation', 'runtime', 'schema'], typicalFiles: ['packages/validation/src/billing.ts', 'packages/validation/src/user.ts'], extractedFrom: 'ECL #078 — 5x verified across all services', referencedInPRs: 8 },
+  { id: 'GP-004', label: 'Route Handler Pattern', description: 'Validate at boundary, use shared errors, delegate to service layer', author: 'Sara Chen', authorEmoji: '🟢', confidence: 0.89, verifications: 4, keywords: ['route', 'handler', 'api'], typicalFiles: ['services/auth/routes/login.ts', 'services/billing/routes/subscription.ts'], extractedFrom: 'ECL #095 — 4x verified', referencedInPRs: 6 },
+  { id: 'GP-005', label: 'Retry with Backoff', description: 'Exponential backoff with jitter using packages/shared-utils/retry.ts', author: 'Marcus Webb', authorEmoji: '🟡', confidence: 0.85, verifications: 2, keywords: ['retry', 'backoff', 'reliability'], typicalFiles: ['packages/shared-utils/src/retry.ts', 'services/webhooks/dispatcher/retry.ts'], extractedFrom: 'ECL #145 — 2x verified', referencedInPRs: 2 },
+];

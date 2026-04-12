@@ -527,3 +527,68 @@ export async function getDataModeInfo(): Promise<DataModeInfo> {
     showSampleBanner: false,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 2 Queries (v0.10.8)
+// ─────────────────────────────────────────────────────────────────────────────
+
+import {
+  FIXTURE_EXPLAIN_HISTORY,
+  FIXTURE_LEARNINGS,
+  FIXTURE_NEXT_ACTIONS,
+  FIXTURE_TRUTH_TIMELINE,
+  FIXTURE_GOLDEN_PATTERNS,
+} from './fixtures';
+
+import type {
+  ExplainEntry,
+  LearningsEntry,
+  NextEntry,
+  TruthTimelineEvent,
+  GoldenPattern,
+} from '@/types/dashboard';
+
+export async function getExplainHistory(): Promise<ExplainEntry[]> {
+  if (isLiveMode()) {
+    const db = getDb();
+    const rows = await db`SELECT data FROM explain_entries ORDER BY timestamp DESC LIMIT 20`;
+    return rows.map((r: any) => r.data);
+  }
+  return FIXTURE_EXPLAIN_HISTORY;
+}
+
+export async function getLatestLearnings(): Promise<LearningsEntry> {
+  if (isLiveMode()) {
+    const db = getDb();
+    const rows = await db`SELECT data FROM learnings_entries ORDER BY generated_at DESC LIMIT 1`;
+    return rows[0]?.data ?? FIXTURE_LEARNINGS;
+  }
+  return FIXTURE_LEARNINGS;
+}
+
+export async function getLatestNextActions(): Promise<NextEntry> {
+  if (isLiveMode()) {
+    const db = getDb();
+    const rows = await db`SELECT data FROM next_entries ORDER BY generated_at DESC LIMIT 1`;
+    return rows[0]?.data ?? FIXTURE_NEXT_ACTIONS;
+  }
+  return FIXTURE_NEXT_ACTIONS;
+}
+
+export async function getTruthTimeline(): Promise<TruthTimelineEvent[]> {
+  if (isLiveMode()) {
+    const db = getDb();
+    const rows = await db`SELECT data FROM truth_events ORDER BY timestamp DESC LIMIT 50`;
+    return rows.map((r: any) => r.data);
+  }
+  return FIXTURE_TRUTH_TIMELINE;
+}
+
+export async function getGoldenPatterns(): Promise<GoldenPattern[]> {
+  if (isLiveMode()) {
+    const db = getDb();
+    const rows = await db`SELECT data FROM golden_patterns ORDER BY confidence DESC`;
+    return rows.map((r: any) => r.data);
+  }
+  return FIXTURE_GOLDEN_PATTERNS;
+}
