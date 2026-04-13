@@ -29,6 +29,7 @@ const navItems: NavItem[] = [
   { label: 'Next Actions', href: '/next-actions', icon: 'zap' },
   { label: 'Truth Timeline', href: '/truth-timeline', icon: 'shield' },
   { label: 'Golden Patterns', href: '/golden-patterns', icon: 'star' },
+  { label: 'Scenario Trigger', href: '/trigger', icon: 'terminal' },
 ];
 
 const iconMap: Record<string, string> = {
