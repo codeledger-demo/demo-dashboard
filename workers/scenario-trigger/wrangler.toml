@@ -1,0 +1,11 @@
+name = "codeledger-scenario-trigger"
+main = "worker.ts"
+compatibility_date = "2024-12-01"
+
+[vars]
+# GITHUB_PAT is set as a secret, not here
+# Run: wrangler secret put GITHUB_PAT
+
+# Optional: custom domain
+# [routes]
+# { pattern = "trigger.codeledger.dev/*", zone_name = "codeledger.dev" }
