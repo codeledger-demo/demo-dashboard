@@ -23,6 +23,7 @@ const navSections: NavSection[] = [
       { label: 'Quality', href: '/quality', icon: 'star' },
       { label: 'Efficiency', href: '/efficiency', icon: 'zap' },
       { label: 'Time Horizon', href: '/time-horizon', icon: 'clock' },
+      { label: 'Agent Performance', href: '/agents', icon: 'zap' },
     ],
   },
   {
