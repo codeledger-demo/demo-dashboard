@@ -9,15 +9,69 @@ interface NavItem {
   icon: string;
 }
 
-const navItems: NavItem[] = [
-  { label: 'Team Health', href: '/team-health', icon: 'pulse' },
-  { label: 'Value', href: '/value', icon: 'dollar' },
-  { label: 'Integrity', href: '/integrity', icon: 'shield' },
-  { label: 'Quality', href: '/quality', icon: 'star' },
-  { label: 'Knowledge', href: '/knowledge', icon: 'brain' },
-  { label: 'Efficiency', href: '/efficiency', icon: 'zap' },
-  { label: 'CIC History', href: '/cic-history', icon: 'check' },
-  { label: 'Release Gates', href: '/release-gates', icon: 'shield' },
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const navSections: NavSection[] = [
+  {
+    title: 'Health',
+    items: [
+      { label: 'Team Health', href: '/team-health', icon: 'pulse' },
+      { label: 'Value', href: '/value', icon: 'dollar' },
+      { label: 'Quality', href: '/quality', icon: 'star' },
+      { label: 'Efficiency', href: '/efficiency', icon: 'zap' },
+      { label: 'Time Horizon', href: '/time-horizon', icon: 'clock' },
+    ],
+  },
+  {
+    title: 'Integrity Trinity',
+    items: [
+      { label: 'Integrity Overview', href: '/integrity-overview', icon: 'shield' },
+      { label: 'Architecture · Doctrine', href: '/doctrine', icon: 'shield' },
+      { label: 'Implementation · Shadow', href: '/shadow', icon: 'zap' },
+      { label: 'Integrity', href: '/integrity', icon: 'shield' },
+      { label: 'Release Gates', href: '/release-gates', icon: 'shield' },
+    ],
+  },
+  {
+    title: 'Intelligence',
+    items: [
+      { label: 'Knowledge', href: '/knowledge', icon: 'brain' },
+      { label: 'Golden Patterns', href: '/golden-patterns', icon: 'star' },
+      { label: 'Explain', href: '/explain', icon: 'book' },
+      { label: 'Learnings', href: '/learnings', icon: 'brain' },
+      { label: 'Next Actions', href: '/next-actions', icon: 'zap' },
+      { label: 'Lessons', href: '/lessons', icon: 'book' },
+    ],
+  },
+  {
+    title: 'Evidence',
+    items: [
+      { label: 'CIC History', href: '/cic-history', icon: 'check' },
+      { label: 'Truth Timeline', href: '/truth-timeline', icon: 'shield' },
+      { label: 'Drift Map', href: '/drift-map', icon: 'map' },
+      { label: 'Incidents', href: '/incidents', icon: 'alert' },
+    ],
+  },
+  {
+    title: 'Enterprise',
+    items: [
+      { label: 'Fleet Insights', href: '/fleet', icon: 'globe' },
+    ],
+  },
+  {
+    title: 'Demo',
+    items: [
+      { label: 'Sandbox', href: '/sandbox', icon: 'terminal' },
+      { label: 'Scenario Trigger', href: '/trigger', icon: 'terminal' },
+    ],
+  },
+];
+
+// Flatten for backward compat
+const navItems: NavItem[] = navSections.flatMap((s) => s.items);
   { label: 'Lessons', href: '/lessons', icon: 'book' },
   { label: 'Time Horizon', href: '/time-horizon', icon: 'clock' },
   { label: 'Drift Map', href: '/drift-map', icon: 'map' },
@@ -63,21 +117,23 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 px-3 py-2">
-        <ul className="space-y-1">
-          {navItems.map((item) => {
-            const isActive =
-              pathname === item.href || pathname?.startsWith(`${item.href}/`);
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                    isActive
-                      ? 'bg-brand-primary/30 text-white'
-                      : 'text-white/70 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
+      <nav className="flex-1 overflow-y-auto px-3 py-2">
+        {navSections.map((section) => (
+          <div key={section.title} className="mb-3">
+            <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/30">{section.title}</div>
+            <ul className="space-y-0.5">
+              {section.items.map((item) => {
+                const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                        isActive
+                          ? 'bg-brand-primary/30 text-white'
+                          : 'text-white/70 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
                   <svg
                     className="h-4 w-4 shrink-0"
                     fill="none"
@@ -92,9 +148,11 @@ export function Sidebar() {
                   {item.label}
                 </Link>
               </li>
-            );
-          })}
-        </ul>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
       </nav>
 
       <div className="border-t border-white/10 px-5 py-4 text-xs text-white/40">
