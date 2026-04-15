@@ -7,6 +7,7 @@ interface NavItem {
   label: string;
   href: string;
   icon: string;
+  sub?: NavItem[];
 }
 
 interface NavSection {
@@ -16,44 +17,48 @@ interface NavSection {
 
 const navSections: NavSection[] = [
   {
-    title: 'Health',
+    title: 'Engineering Intelligence',
     items: [
-      { label: 'Team Health', href: '/team-health', icon: 'pulse' },
-      { label: 'Value', href: '/value', icon: 'dollar' },
-      { label: 'Quality', href: '/quality', icon: 'star' },
-      { label: 'Efficiency', href: '/efficiency', icon: 'zap' },
-      { label: 'Time Horizon', href: '/time-horizon', icon: 'clock' },
-      { label: 'Agent Performance', href: '/agents', icon: 'zap' },
-    ],
-  },
-  {
-    title: 'Integrity Trinity',
-    items: [
-      { label: 'Integrity Overview', href: '/integrity-overview', icon: 'shield' },
-      { label: 'Architecture · Doctrine', href: '/doctrine', icon: 'shield' },
-      { label: 'Implementation · Shadow', href: '/shadow', icon: 'zap' },
-      { label: 'Integrity', href: '/integrity', icon: 'shield' },
-      { label: 'Release Gates', href: '/release-gates', icon: 'shield' },
-    ],
-  },
-  {
-    title: 'Intelligence',
-    items: [
-      { label: 'Knowledge', href: '/knowledge', icon: 'brain' },
-      { label: 'Golden Patterns', href: '/golden-patterns', icon: 'star' },
-      { label: 'Explain', href: '/explain', icon: 'book' },
-      { label: 'Learnings', href: '/learnings', icon: 'brain' },
-      { label: 'Next Actions', href: '/next-actions', icon: 'zap' },
-      { label: 'Lessons', href: '/lessons', icon: 'book' },
-    ],
-  },
-  {
-    title: 'Evidence',
-    items: [
-      { label: 'CIC History', href: '/cic-history', icon: 'check' },
-      { label: 'Truth Timeline', href: '/truth-timeline', icon: 'shield' },
-      { label: 'Drift Map', href: '/drift-map', icon: 'map' },
-      { label: 'Incidents', href: '/incidents', icon: 'alert' },
+      {
+        label: 'Health', href: '/health', icon: 'pulse',
+        sub: [
+          { label: 'Team Health', href: '/team-health', icon: 'pulse' },
+          { label: 'Quality', href: '/quality', icon: 'star' },
+          { label: 'Agent Performance', href: '/agents', icon: 'zap' },
+        ],
+      },
+      {
+        label: 'Value', href: '/value-overview', icon: 'dollar',
+        sub: [
+          { label: 'Value Breakdown', href: '/value', icon: 'dollar' },
+          { label: 'Efficiency', href: '/efficiency', icon: 'zap' },
+          { label: 'Knowledge', href: '/knowledge', icon: 'brain' },
+          { label: 'Patterns', href: '/golden-patterns', icon: 'star' },
+        ],
+      },
+      {
+        label: 'Ship', href: '/ship', icon: 'shield',
+        sub: [
+          { label: 'Integrity Trinity', href: '/integrity-overview', icon: 'shield' },
+          { label: 'Doctrine', href: '/doctrine', icon: 'shield' },
+          { label: 'Shadow', href: '/shadow', icon: 'zap' },
+          { label: 'Release Gates', href: '/release-gates', icon: 'shield' },
+          { label: 'CIC History', href: '/cic-history', icon: 'check' },
+        ],
+      },
+      {
+        label: 'Watch', href: '/watch', icon: 'alert',
+        sub: [
+          { label: 'Incidents', href: '/incidents', icon: 'alert' },
+          { label: 'Drift Map', href: '/drift-map', icon: 'map' },
+          { label: 'Truth Timeline', href: '/truth-timeline', icon: 'shield' },
+          { label: 'Explain', href: '/explain', icon: 'book' },
+          { label: 'Next Actions', href: '/next-actions', icon: 'zap' },
+        ],
+      },
+      {
+        label: 'Time Horizon', href: '/time-horizon', icon: 'clock',
+      },
     ],
   },
   {
@@ -69,22 +74,6 @@ const navSections: NavSection[] = [
       { label: 'Scenario Trigger', href: '/trigger', icon: 'terminal' },
     ],
   },
-];
-
-// Flatten for backward compat
-const navItems: NavItem[] = navSections.flatMap((s) => s.items);
-  { label: 'Lessons', href: '/lessons', icon: 'book' },
-  { label: 'Time Horizon', href: '/time-horizon', icon: 'clock' },
-  { label: 'Drift Map', href: '/drift-map', icon: 'map' },
-  { label: 'Incidents', href: '/incidents', icon: 'alert' },
-  { label: 'Sandbox', href: '/sandbox', icon: 'terminal' },
-  { label: 'Fleet Insights · Enterprise', href: '/fleet', icon: 'globe' },
-  { label: 'Explain', href: '/explain', icon: 'book' },
-  { label: 'Learnings', href: '/learnings', icon: 'brain' },
-  { label: 'Next Actions', href: '/next-actions', icon: 'zap' },
-  { label: 'Truth Timeline', href: '/truth-timeline', icon: 'shield' },
-  { label: 'Golden Patterns', href: '/golden-patterns', icon: 'star' },
-  { label: 'Scenario Trigger', href: '/trigger', icon: 'terminal' },
 ];
 
 const iconMap: Record<string, string> = {
@@ -103,15 +92,21 @@ const iconMap: Record<string, string> = {
   zap: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
 };
 
+function NavIcon({ icon }: { icon: string }) {
+  return (
+    <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d={iconMap[icon] ?? ''} />
+    </svg>
+  );
+}
+
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
     <aside className="flex w-60 flex-col bg-surface-sidebar text-white">
       <div className="flex items-center gap-2 px-5 py-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-accent text-sm font-bold">
-          CL
-        </div>
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-accent text-sm font-bold">CL</div>
         <div>
           <div className="text-sm font-semibold">CodeLedger</div>
           <div className="text-xs text-emerald-300/60">Synthetic Demo</div>
@@ -120,35 +115,43 @@ export function Sidebar() {
 
       <nav className="flex-1 overflow-y-auto px-3 py-2">
         {navSections.map((section) => (
-          <div key={section.title} className="mb-3">
+          <div key={section.title} className="mb-4">
             <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/30">{section.title}</div>
             <ul className="space-y-0.5">
               {section.items.map((item) => {
-                const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+                const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`) ||
+                  item.sub?.some((s) => pathname === s.href || pathname?.startsWith(`${s.href}/`));
                 return (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className={`flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm transition-colors ${
-                        isActive
-                          ? 'bg-brand-primary/30 text-white'
-                          : 'text-white/70 hover:bg-white/10 hover:text-white'
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                        isActive ? 'bg-brand-primary/30 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'
                       }`}
                     >
-                  <svg
-                    className="h-4 w-4 shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d={iconMap[item.icon] ?? ''} />
-                  </svg>
-                  {item.label}
-                </Link>
-              </li>
+                      <NavIcon icon={item.icon} />
+                      {item.label}
+                    </Link>
+                    {item.sub && isActive && (
+                      <ul className="ml-6 mt-0.5 space-y-0.5 border-l border-white/10 pl-2">
+                        {item.sub.map((sub) => {
+                          const subActive = pathname === sub.href || pathname?.startsWith(`${sub.href}/`);
+                          return (
+                            <li key={sub.href}>
+                              <Link
+                                href={sub.href}
+                                className={`block rounded-md px-2 py-1 text-xs transition-colors ${
+                                  subActive ? 'text-white font-medium' : 'text-white/50 hover:text-white/80'
+                                }`}
+                              >
+                                {sub.label}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </li>
                 );
               })}
             </ul>
