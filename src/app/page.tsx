@@ -33,6 +33,33 @@ export default function LandingPage(): JSX.Element {
             synthetic monorepo.
           </p>
 
+
+          {/* Positioning Block */}
+          <div className="mt-6 rounded-lg border border-stone-200 bg-stone-50 p-5 text-sm leading-relaxed text-stone-600">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand-primary">
+              What problem are we solving?
+            </p>
+            <p className="mt-2">
+              <strong>The Problem</strong> &mdash; AI coding agents waste 40&ndash;60% of their context
+              window on irrelevant files. Every session starts cold. Institutional knowledge lives in
+              people&rsquo;s heads and disappears when they leave. There is no risk signal before a merge.
+            </p>
+            <p className="mt-2">
+              <strong>The Solution</strong> &mdash; CodeLedger is a deterministic context control plane
+              for software development. It scores every file in a repository, selects only what the current
+              task requires, captures outcomes, and promotes successful patterns into reusable institutional memory.
+            </p>
+            <p className="mt-2">
+              <strong>The Intelligence Layer</strong> &mdash; The Task Intelligence Engine is seeded from
+              day one with a curated ontology of golden patterns &mdash; distilled from leading engineering
+              teams at organizations including Google, SAP, and Salesforce. Your own earned patterns layer
+              on top, making the system progressively more tailored to your codebase.
+            </p>
+            <p className="mt-3 text-xs italic text-brand-primary">
+              Logs are history. Ledger is intelligence.
+            </p>
+          </div>
+
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             <Link
               href="/team-health"
