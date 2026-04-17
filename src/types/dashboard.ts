@@ -402,3 +402,28 @@ export interface GoldenPattern {
   extractedFrom: string;
   referencedInPRs: number;
 }
+
+// ─── Terminal Replay ────────────────────────────────────────────────────────
+
+export interface ReplayFlowEntry {
+  id: string;
+  title: string;
+  persona: string;
+  personaEmoji: string;
+  startedAt: string;
+  provider: 'shell' | 'tmux';
+  directory: string;
+  steps: string[];
+  shape: string;
+  score: number;
+  action: 'keep' | 'compact';
+}
+
+export interface ReplaySimilarMatch {
+  label: 'Strong' | 'Likely' | 'Possible';
+  resolvedBy: string;
+  resolvedByEmoji: string;
+  timeAgo: string;
+  reasons: string[];
+  originalFlowId: string;
+}

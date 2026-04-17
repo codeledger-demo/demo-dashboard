@@ -68,6 +68,12 @@ const navSections: NavSection[] = [
     ],
   },
   {
+    title: 'Execution Memory',
+    items: [
+      { label: 'Terminal Replay', href: '/replay', icon: 'terminal' },
+    ],
+  },
+  {
     title: 'Demo',
     items: [
       { label: 'Sandbox', href: '/sandbox', icon: 'terminal' },

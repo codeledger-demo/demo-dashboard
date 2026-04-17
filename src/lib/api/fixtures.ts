@@ -23,6 +23,8 @@ import type {
   QualityMetrics,
   ReleaseFinding,
   DataModeInfo,
+  ReplayFlowEntry,
+  ReplaySimilarMatch,
 } from '@/types/dashboard';
 import { ladderStepForState } from '@/types/dashboard';
 
@@ -1348,6 +1350,83 @@ export const FIXTURE_TRUTH_TIMELINE: TruthTimelineEvent[] = [
   { id: 'tt-006', type: 'HOTSPOT_OBSERVED', timestamp: '2026-04-08T16:00:00Z', commitSha: 'f6a7b8c', truthGrade: 'C', summary: 'Hotspot: services/auth/middleware/ — 3 changes in 48h', details: {} },
   { id: 'tt-007', type: 'VERIFY_RUN', timestamp: '2026-04-10T09:45:00Z', commitSha: 'a7b8c9d', truthGrade: 'B', summary: 'Post-incident recovery — 1 P2 finding remaining', details: {} },
   { id: 'tt-008', type: 'TRUTH_SNAPSHOT', timestamp: '2026-04-11T10:00:00Z', commitSha: 'b8c9d0e', truthGrade: 'A', summary: 'Recovery complete — FRESH remote, CI present, clean worktree', details: {} },
+];
+
+export const FIXTURE_REPLAY_FLOWS: ReplayFlowEntry[] = [
+  {
+    id: 'flow-sara-pod-crash',
+    title: 'Pod crash-loop remediation',
+    persona: 'Sara Chen',
+    personaEmoji: '🟢',
+    startedAt: '2026-04-10T14:00:00Z',
+    provider: 'tmux',
+    directory: 'infra/k8s/staging',
+    steps: [
+      'kubectl get pods -n staging',
+      'kubectl logs api-pod-7f8b9c -n staging --tail=50',
+      'kubectl describe pod api-pod-7f8b9c -n staging',
+      'kubectl exec -it api-pod-7f8b9c -n staging -- env | grep DATABASE',
+      'vim infra/k8s/staging/api-configmap.yaml',
+      'kubectl apply -f infra/k8s/staging/api-configmap.yaml',
+      'kubectl rollout restart deployment/api -n staging',
+      'kubectl rollout status deployment/api -n staging',
+    ],
+    shape: 'inspect → inspect → inspect → edit → deploy → restart',
+    score: 0.88,
+    action: 'keep',
+  },
+  {
+    id: 'flow-sara-verify',
+    title: 'Verification after restart',
+    persona: 'Sara Chen',
+    personaEmoji: '🟢',
+    startedAt: '2026-04-10T14:15:00Z',
+    provider: 'tmux',
+    directory: 'infra/k8s/staging',
+    steps: [
+      'kubectl get pods -n staging -w',
+      'kubectl logs -f deployment/api -n staging --tail=20',
+    ],
+    shape: 'inspect',
+    score: 0.72,
+    action: 'compact',
+  },
+  {
+    id: 'flow-marcus-similar',
+    title: 'Notifications pod crash-loop (guided by replay)',
+    persona: 'Marcus Webb',
+    personaEmoji: '🟡',
+    startedAt: '2026-04-16T15:30:00Z',
+    provider: 'shell',
+    directory: 'infra/k8s/staging',
+    steps: [
+      'kubectl get pods -n staging',
+      'kubectl logs notifications-pod-3a2c1d -n staging --tail=30',
+      'kubectl exec -it notifications-pod-3a2c1d -n staging -- env | grep REDIS',
+      'vim infra/k8s/staging/notifications-configmap.yaml',
+      'kubectl apply -f infra/k8s/staging/notifications-configmap.yaml',
+      'kubectl rollout restart deployment/notifications -n staging',
+    ],
+    shape: 'inspect → inspect → edit → deploy → restart',
+    score: 0.78,
+    action: 'keep',
+  },
+];
+
+export const FIXTURE_REPLAY_SIMILAR: ReplaySimilarMatch[] = [
+  {
+    label: 'Strong',
+    resolvedBy: 'Sara Chen',
+    resolvedByEmoji: '🟢',
+    timeAgo: '6 days ago',
+    reasons: [
+      'shared command family: kubectl',
+      'shared resource tokens: pod, staging, configmap',
+      'similar flow shape: inspect → edit → deploy → restart',
+      'same project area: infra/k8s/staging',
+    ],
+    originalFlowId: 'flow-sara-pod-crash',
+  },
 ];
 
 export const FIXTURE_GOLDEN_PATTERNS: GoldenPattern[] = [

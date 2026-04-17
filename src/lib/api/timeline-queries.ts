@@ -36,6 +36,8 @@ import {
   FIXTURE_RELEASE_FINDINGS,
   FIXTURE_TIME_HORIZON_PROJECTIONS,
   FIXTURE_SAMPLE_BANNER,
+  FIXTURE_REPLAY_FLOWS,
+  FIXTURE_REPLAY_SIMILAR,
   type FleetData,
   type HorizonMetrics,
   type ArcDef,
@@ -546,6 +548,8 @@ import type {
   NextEntry,
   TruthTimelineEvent,
   GoldenPattern,
+  ReplayFlowEntry,
+  ReplaySimilarMatch,
 } from '@/types/dashboard';
 
 export async function getExplainHistory(): Promise<ExplainEntry[]> {
@@ -591,4 +595,13 @@ export async function getGoldenPatterns(): Promise<GoldenPattern[]> {
     return rows.map((r: any) => r.data);
   }
   return FIXTURE_GOLDEN_PATTERNS;
+}
+
+export async function getReplayFlows(): Promise<ReplayFlowEntry[]> {
+  // Replay flows are demo-only for now — no DB table yet.
+  return FIXTURE_REPLAY_FLOWS;
+}
+
+export async function getReplaySimilar(): Promise<ReplaySimilarMatch[]> {
+  return FIXTURE_REPLAY_SIMILAR;
 }
