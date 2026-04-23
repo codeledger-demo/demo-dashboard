@@ -18,8 +18,8 @@ Visual quality is non-negotiable. Every page must feel polished, calm, and credi
 | Target | Rendering | Repo |
 |--------|-----------|------|
 | demo.codeledger.dev | Next.js + Tailwind (this repo) | demo-dashboard |
-| `codeledger insight serve` | React SSR with inline styles | codeledger-blackbox/packages/insight-ui |
-| `codeledger dashboard build` | Same SSR, static HTML | codeledger-blackbox/packages/insight-ui |
+| `codeledger insight serve` | React SSR with inline styles | `@codeledger/insight-ui` |
+| `codeledger dashboard build` | Same SSR, static HTML | `@codeledger/insight-ui` |
 
 Same product logic, same data pipeline, same metrics. Different rendering quality.
 The demo gets flagship polish. The customer CLI gets functional rendering.
