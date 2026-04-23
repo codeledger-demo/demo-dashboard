@@ -1,3 +1,7 @@
+<!-- CODELEDGER:BEGIN -->
+This repo uses [CodeLedger](https://codeledger.dev) for deterministic context selection.
+<!-- CODELEDGER:END -->
+
 # Demo Dashboard — Design Standards
 
 ## This Is the Flagship
