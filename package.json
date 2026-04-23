@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "cp ../synthetic-reality-engine/.bootstrap-output/mergeMemoryRollup.json src/data/mergeMemoryRollup.json 2>/dev/null || true",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",

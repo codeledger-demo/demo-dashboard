@@ -57,6 +57,9 @@ const navSections: NavSection[] = [
         ],
       },
       {
+        label: 'Merge Memory', href: '/engineering-intelligence', icon: 'brain',
+      },
+      {
         label: 'Time Horizon', href: '/time-horizon', icon: 'clock',
       },
     ],

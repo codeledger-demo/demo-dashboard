@@ -1,0 +1,70 @@
+{
+  "window": "7d",
+  "generated_at": "2026-04-23T14:46:57.138Z",
+  "headline": {
+    "total_merges": 5,
+    "certified_rate": 1,
+    "risk_cues_rate": 0,
+    "confidenceTag": "partial"
+  },
+  "per_author": [
+    {
+      "author": "sara-chen",
+      "merges": 3,
+      "certified_rate": 1,
+      "risk_cues_rate": 0,
+      "recent_samples": [
+        {
+          "timestamp": "2026-04-21T11:50:36.112Z",
+          "task": "release: v2.5.0 — Integrity Trinity PASS",
+          "certified": true,
+          "risk_count": 0
+        },
+        {
+          "timestamp": "2026-04-20T08:31:28.099Z",
+          "task": "chore: complete feature propagation for v2.5.0",
+          "certified": true,
+          "risk_count": 0
+        },
+        {
+          "timestamp": "2026-04-16T21:50:05.060Z",
+          "task": "fix(api): correct staging configmap after pod crash-loop",
+          "certified": true,
+          "risk_count": 0
+        }
+      ],
+      "confidenceTag": "partial"
+    },
+    {
+      "author": "marcus-webb",
+      "merges": 1,
+      "certified_rate": 1,
+      "risk_cues_rate": 0,
+      "recent_samples": [
+        {
+          "timestamp": "2026-04-19T05:12:20.086Z",
+          "task": "fix(notifications): correct staging config after pod crash-loop",
+          "certified": true,
+          "risk_count": 0
+        }
+      ],
+      "confidenceTag": "partial"
+    },
+    {
+      "author": "priya-k",
+      "merges": 1,
+      "certified_rate": 1,
+      "risk_cues_rate": 0,
+      "recent_samples": [
+        {
+          "timestamp": "2026-04-18T01:09:13.073Z",
+          "task": "feat(billing): extend dashboard metrics",
+          "certified": true,
+          "risk_count": 0
+        }
+      ],
+      "confidenceTag": "partial"
+    }
+  ],
+  "isSynthetic": true
+}

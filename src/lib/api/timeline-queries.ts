@@ -10,6 +10,7 @@
  */
 
 import { getDb } from '@/lib/db/client';
+import mergeMemoryRollupData from '@/data/mergeMemoryRollup.json';
 import {
   isLiveMode,
   FIXTURE_CIC_HISTORY,
@@ -604,4 +605,41 @@ export async function getReplayFlows(): Promise<ReplayFlowEntry[]> {
 
 export async function getReplaySimilar(): Promise<ReplaySimilarMatch[]> {
   return FIXTURE_REPLAY_SIMILAR;
+}
+
+// ─── Engineering Intelligence — Merge Memory Rollups ─────────────────────────
+
+export interface MergeMemoryRecentSample {
+  timestamp: string;
+  task: string | null;
+  certified: boolean;
+  risk_count: number;
+}
+
+export interface MergeMemoryRollupRow {
+  author: string;
+  merges: number;
+  certified_rate: number;
+  risk_cues_rate: number;
+  recent_samples: MergeMemoryRecentSample[];
+  confidenceTag: 'deterministic' | 'partial' | 'advisory';
+}
+
+export interface MergeMemoryRollupMetrics {
+  window: '7d';
+  generated_at: string;
+  headline: {
+    total_merges: number;
+    certified_rate: number;
+    risk_cues_rate: number;
+    confidenceTag: 'deterministic' | 'partial' | 'advisory';
+  };
+  per_author: MergeMemoryRollupRow[];
+  isSynthetic: true;
+}
+
+export async function getMergeMemoryRollup(): Promise<MergeMemoryRollupMetrics> {
+  // Merge Memory data is SRE-seeded fixture only — no DB table.
+  // In CI/CD, the pre-build step copies the SRE bootstrap output to src/data/.
+  return mergeMemoryRollupData as MergeMemoryRollupMetrics;
 }
