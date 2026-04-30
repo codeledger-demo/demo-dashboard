@@ -1,9 +1,30 @@
 import Link from 'next/link';
 
+const publicRepoFindings = [
+  {
+    repo: 'Next.js + React',
+    scope: '11 merged PRs, scored blind',
+    result: '5 useful catches, 2 correct silences, 0 hallucinations',
+    note: 'Separated systemic signal gaps from repo-local noise and produced concrete fixes.',
+  },
+  {
+    repo: 'PostgreSQL',
+    scope: 'C codebase, revert-heavy sample',
+    result: 'Pipeline ran cleanly: no crashes, no indeterminate output, stable JSON',
+    note: 'Exposed where JS/TS-shaped risk patterns needed language packs for enterprise C repos.',
+  },
+  {
+    repo: 'Postgres UX study',
+    scope: '7 real tasks against a 5,000+ file repo',
+    result: 'Found a cold-start retrieval gap before claiming victory',
+    note: 'That failure mode directly drove selector and prompt-coach hardening.',
+  },
+];
+
 export default function LandingPage(): JSX.Element {
   return (
     <main className="flex min-h-screen items-center justify-center bg-surface-bg p-8">
-      <div className="w-full max-w-2xl space-y-8">
+      <div className="w-full max-w-3xl space-y-8">
         <div className="rounded-xl border border-stone-200 bg-surface-card p-10 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-brand-primary">
@@ -33,6 +54,48 @@ export default function LandingPage(): JSX.Element {
             synthetic monorepo.
           </p>
 
+          {/* Public Repo Proof Block */}
+          <div className="mt-6 rounded-xl border border-emerald-100 bg-emerald-50/40 p-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary">
+                  Enterprise-class public repo experiments
+                </p>
+                <h2 className="mt-2 font-serif text-2xl font-bold text-stone-900">
+                  Validated beyond the demo repo
+                </h2>
+              </div>
+              <span className="w-fit rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-medium text-brand-primary">
+                Next.js · React · Postgres
+              </span>
+            </div>
+            <p className="mt-3 text-sm leading-relaxed text-stone-600">
+              We run CodeLedger against large public repositories so the demo is not just a
+              synthetic story. The useful result is not perfection. It is evidence: where
+              CodeLedger catches real review risk, where it stays quiet, and where the product
+              needs a sharper signal.
+            </p>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {publicRepoFindings.map((finding) => (
+                <div key={finding.repo} className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-stone-400">
+                    {finding.repo}
+                  </p>
+                  <p className="mt-2 text-xs text-stone-500">{finding.scope}</p>
+                  <p className="mt-3 text-sm font-semibold leading-snug text-stone-800">
+                    {finding.result}
+                  </p>
+                  <p className="mt-2 text-xs leading-relaxed text-stone-500">
+                    {finding.note}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-xs leading-relaxed text-stone-500">
+              These are measurement runs, not marketing benchmarks. Selection is pre-registered
+              and filter-based; failures are kept in the story because they improve the product.
+            </p>
+          </div>
 
           {/* Positioning Block */}
           <div className="mt-6 rounded-lg border border-stone-200 bg-stone-50 p-5 text-sm leading-relaxed text-stone-600">
