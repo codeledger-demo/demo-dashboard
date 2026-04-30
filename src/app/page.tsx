@@ -95,6 +95,12 @@ export default function LandingPage(): JSX.Element {
               These are measurement runs, not marketing benchmarks. Selection is pre-registered
               and filter-based; failures are kept in the story because they improve the product.
             </p>
+            <Link
+              href="/trust-layers"
+              className="mt-4 inline-flex rounded-lg border border-brand-primary bg-white px-3 py-2 text-xs font-medium text-brand-primary shadow-sm transition hover:bg-emerald-50"
+            >
+              See the trust layers
+            </Link>
           </div>
 
           {/* Positioning Block */}
@@ -177,10 +183,10 @@ export default function LandingPage(): JSX.Element {
               </li>
               <li>
                 <span className="text-stone-400">5.</span>{' '}
-                <Link href="/sandbox" className="text-brand-primary hover:underline">
-                  Sandbox Lane
+                <Link href="/trust-layers" className="text-brand-primary hover:underline">
+                  Trust Layers
                 </Link>{' '}
-                — try a real CIC check yourself
+                — context, audit, and signal health in one proof view
               </li>
             </ol>
           </div>

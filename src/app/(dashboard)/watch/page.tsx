@@ -24,7 +24,11 @@ export default function WatchHub() {
           <p className="mt-1 text-sm text-stone-500">Evidence chain events, truth grade progression.</p>
         </Link>
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <Link href="/trust-layers" className="group rounded-xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm transition hover:border-brand-primary/40 hover:shadow">
+          <h3 className="text-sm font-semibold text-stone-700 group-hover:text-brand-primary">Trust Layers</h3>
+          <p className="mt-1 text-xs text-stone-500">Context sufficiency, audit board, and signal health.</p>
+        </Link>
         <Link href="/explain" className="group rounded-xl border border-stone-200 bg-white p-6 shadow-sm transition hover:border-brand-primary/40 hover:shadow">
           <h3 className="text-sm font-semibold text-stone-700 group-hover:text-brand-primary">Explain</h3>
           <p className="mt-1 text-xs text-stone-500">Why did this happen? Evidence-cited run narrative.</p>

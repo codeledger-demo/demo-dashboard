@@ -334,6 +334,33 @@ export interface DataModeInfo {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Trust Layers
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type TrustLayerStatus = 'strong' | 'watch' | 'unknown';
+
+export interface TrustLayerMetric {
+  id: 'context_sufficiency' | 'audit_board' | 'signal_architecture';
+  label: string;
+  status: TrustLayerStatus;
+  score: number;
+  headline: string;
+  summary: string;
+  evidence: string[];
+  privateBoundary: string;
+}
+
+export interface TrustLayerSnapshot {
+  generatedAt: string;
+  mode: 'public_demo' | 'live';
+  headline: string;
+  narrative: string;
+  metrics: TrustLayerMetric[];
+  publicBoundary: string[];
+  nextProofMoment: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Phase 2: Explainability & Intelligence (v0.10.8)
 // ─────────────────────────────────────────────────────────────────────────────
 
