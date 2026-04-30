@@ -23,6 +23,7 @@ import type {
   QualityMetrics,
   ReleaseFinding,
   DataModeInfo,
+  TrustLayerSnapshot,
   ReplayFlowEntry,
   ReplaySimilarMatch,
 } from '@/types/dashboard';
@@ -1245,6 +1246,71 @@ export const FIXTURE_SAMPLE_BANNER: DataModeInfo = {
   showSampleBanner: true,
   sampleBannerText:
     "You're viewing sample data — a synthetic team (Sara, Marcus, Priya) 10 weeks into using CodeLedger. Start using CodeLedger on your own repo to see your team's real metrics here.",
+};
+
+export const FIXTURE_TRUST_LAYERS: TrustLayerSnapshot = {
+  generatedAt: '2026-04-30T16:30:00-07:00',
+  mode: 'public_demo',
+  headline: 'Validated context, bounded audit, and signal health in one public-safe view.',
+  narrative:
+    'The trust layers show what CodeLedger can safely say before a team merges: whether the context is sufficient, whether the change passed a bounded audit board, and whether recent signals are healthy enough to trust.',
+  metrics: [
+    {
+      id: 'context_sufficiency',
+      label: 'Context Sufficiency',
+      status: 'strong',
+      score: 82,
+      headline: 'Enough validated context to proceed',
+      summary:
+        'CSG combines structural coverage, test evidence, historical outcomes, observability, and pattern alignment. Missing evidence degrades to unknown instead of blocking with fake certainty.',
+      evidence: [
+        'Context bundle covered the touched service boundary',
+        'Related tests and outcome history were present',
+        'Pattern alignment matched promoted auth and billing flows',
+      ],
+      privateBoundary:
+        'The public view shows aggregate sufficiency only; it does not expose source snippets or raw context capsules.',
+    },
+    {
+      id: 'audit_board',
+      label: 'Audit Board',
+      status: 'watch',
+      score: 74,
+      headline: 'Bounded lenses found review focus, not a blocker',
+      summary:
+        'Audit Board runs deterministic security, test, and architecture lenses as bounded capsules, then returns one verdict. Lens failures become unknown, not command failure.',
+      evidence: [
+        'Security lens found no credential or unsafe boundary signal',
+        'Tests lens asked reviewers to confirm integration coverage',
+        'Architecture lens stayed scoped to changed surfaces',
+      ],
+      privateBoundary:
+        'Raw LensSignal and CompoundFinding internals stay private; the demo shows only trust-layer outcomes.',
+    },
+    {
+      id: 'signal_architecture',
+      label: 'Signal Architecture',
+      status: 'strong',
+      score: 86,
+      headline: 'Signal health is strong enough for public guidance',
+      summary:
+        'Signal Architecture tracks outcome confidence, decay, prompt health, and the feedback flywheel so the dashboard can show whether its own advice is getting stronger or stale.',
+      evidence: [
+        'Outcome confidence remains above the public guidance threshold',
+        'Signal fatigue caps are active',
+        'Promoted patterns are backed by deploy outcomes',
+      ],
+      privateBoundary:
+        'Prompt-health advisories are abstracted; private evidence paths and source snippets are withheld by default.',
+    },
+  ],
+  publicBoundary: [
+    'No source code leaves the public demo boundary',
+    'Raw audit capsules are not rendered on public pages',
+    'Unknown stays unknown when evidence is thin',
+  ],
+  nextProofMoment:
+    'Use this page as the bridge from the homepage proof block into PR Intelligence, dashboard confidence, and design-partner rollout.',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

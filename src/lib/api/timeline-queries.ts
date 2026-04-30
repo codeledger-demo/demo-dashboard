@@ -36,6 +36,7 @@ import {
   FIXTURE_RELEASE_FINDINGS,
   FIXTURE_TIME_HORIZON_PROJECTIONS,
   FIXTURE_SAMPLE_BANNER,
+  FIXTURE_TRUST_LAYERS,
   FIXTURE_REPLAY_FLOWS,
   FIXTURE_REPLAY_SIMILAR,
   type FleetData,
@@ -62,6 +63,7 @@ import type {
   QualityMetrics,
   ReleaseFinding,
   DataModeInfo,
+  TrustLayerSnapshot,
 } from '@/types/dashboard';
 
 interface DateRangeFilter {
@@ -528,6 +530,11 @@ export async function getDataModeInfo(): Promise<DataModeInfo> {
     mode: 'live',
     showSampleBanner: false,
   };
+}
+
+export async function getTrustLayers(): Promise<TrustLayerSnapshot> {
+  if (!isLiveMode()) return FIXTURE_TRUST_LAYERS;
+  throw new Error('getTrustLayers: not yet implemented in live mode');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

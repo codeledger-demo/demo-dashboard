@@ -52,6 +52,7 @@ const navSections: NavSection[] = [
           { label: 'Incidents', href: '/incidents', icon: 'alert' },
           { label: 'Drift Map', href: '/drift-map', icon: 'map' },
           { label: 'Truth Timeline', href: '/truth-timeline', icon: 'shield' },
+          { label: 'Trust Layers', href: '/trust-layers', icon: 'layers' },
           { label: 'Explain', href: '/explain', icon: 'book' },
           { label: 'Next Actions', href: '/next-actions', icon: 'zap' },
         ],
@@ -96,6 +97,7 @@ const iconMap: Record<string, string> = {
   star: 'M12 2l3 7h7l-6 4 2 8-6-5-6 5 2-8-6-4h7z',
   brain: 'M12 2a4 4 0 00-4 4v2a3 3 0 00-3 3v2a3 3 0 003 3v2a4 4 0 004 4 4 4 0 004-4v-2a3 3 0 003-3v-2a3 3 0 00-3-3V6a4 4 0 00-4-4z',
   zap: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+  layers: 'M12 2l9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5',
 };
 
 function NavIcon({ icon }: { icon: string }) {
