@@ -39,6 +39,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build static site
+        env:
+          NEXT_PUBLIC_SCENARIO_TRIGGER_URL: ${{ vars.SCENARIO_TRIGGER_URL || 'https://codeledger-scenario-trigger.ash-248.workers.dev' }}
         run: pnpm build
 
       - name: Add .nojekyll (prevent Jekyll processing)

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { resolveScenarioTriggerUrl } from '@/lib/scenario-trigger';
 
 const SCENARIOS = [
   { id: 'arc7-100-semantic-fortress-block', name: 'Semantic Fortress Block', arc: '7', feature: 'Intent-lock violation detection' },
@@ -25,8 +26,8 @@ export default function TriggerPage() {
   const [lastFired, setLastFired] = useState<string | null>(null);
 
   const API_ENDPOINT = typeof window !== 'undefined'
-    ? (window as unknown as Record<string, string>).__SCENARIO_TRIGGER_URL__ || ''
-    : '';
+    ? resolveScenarioTriggerUrl(window)
+    : resolveScenarioTriggerUrl();
 
   async function fire() {
     if (cooldown) return;
