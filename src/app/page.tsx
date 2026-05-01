@@ -33,7 +33,7 @@ export default function LandingPage(): JSX.Element {
             <span className="text-xs text-stone-400">Updated every weekday at 9am, 11am, 2pm, 4pm Pacific</span>
           </div>
           <h1 className="font-serif text-4xl font-bold text-stone-900">
-            CodeLedger Living Demo
+            ContextECF CodeLedger Living Demo
           </h1>
           <p className="mt-3 text-lg text-stone-600">
             A synthetic engineering team. Real CodeLedger output. Ten months of history.
