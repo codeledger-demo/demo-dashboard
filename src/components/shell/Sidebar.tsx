@@ -25,6 +25,7 @@ const navSections: NavSection[] = [
           { label: 'Team Health', href: '/team-health', icon: 'pulse' },
           { label: 'Quality', href: '/quality', icon: 'star' },
           { label: 'Agent Performance', href: '/agents', icon: 'zap' },
+          { label: 'Context Debt', href: '/context-debt', icon: 'pulse' },
         ],
       },
       {
@@ -44,6 +45,9 @@ const navSections: NavSection[] = [
           { label: 'Shadow', href: '/shadow', icon: 'zap' },
           { label: 'Release Gates', href: '/release-gates', icon: 'shield' },
           { label: 'CIC History', href: '/cic-history', icon: 'check' },
+          { label: 'PR Fingerprint', href: '/pr-fingerprint', icon: 'check' },
+          { label: 'Context Contracts', href: '/context-contracts', icon: 'shield' },
+          { label: 'Compliance', href: '/compliance', icon: 'shield' },
         ],
       },
       {
@@ -55,6 +59,9 @@ const navSections: NavSection[] = [
           { label: 'Trust Layers', href: '/trust-layers', icon: 'layers' },
           { label: 'Explain', href: '/explain', icon: 'book' },
           { label: 'Next Actions', href: '/next-actions', icon: 'zap' },
+          { label: 'Intent Lock', href: '/intent-lock', icon: 'zap' },
+          { label: 'Staleness', href: '/staleness', icon: 'zap' },
+          { label: 'Domain Security', href: '/domain-security', icon: 'zap' },
         ],
       },
       {
@@ -71,7 +78,13 @@ const navSections: NavSection[] = [
   {
     title: 'Execution Memory',
     items: [
-      { label: 'Terminal Replay', href: '/replay', icon: 'terminal' },
+      {
+        label: 'Terminal Replay', href: '/replay', icon: 'terminal',
+        sub: [
+          { label: 'Terminal Replay', href: '/replay', icon: 'terminal' },
+          { label: 'Seed Patterns', href: '/seed-patterns', icon: 'brain' },
+        ],
+      },
     ],
   },
   {
