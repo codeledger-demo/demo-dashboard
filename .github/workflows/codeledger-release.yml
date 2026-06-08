@@ -8,17 +8,25 @@ name: CodeLedger Release Sync
 #   2. Commits and pushes to main
 #   3. The push trigger in deploy-pages.yml fires automatically,
 #      rebuilding and redeploying the dashboard at demo.codeledger.dev
+#
+# workflow_dispatch is also available for manual catch-up runs.
 
 on:
   repository_dispatch:
     types: [codeledger-release]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "CodeLedger version to stamp (e.g. 0.10.32)"
+        required: true
+        type: string
 
 permissions:
   contents: write
 
 jobs:
   sync-version:
-    name: Bump version badge to v${{ github.event.client_payload.version }}
+    name: Bump version badge
     runs-on: ubuntu-latest
 
     steps:
@@ -26,32 +34,34 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update codeledger-version.json
+      - name: Resolve version
+        id: ver
         run: |
-          VERSION="${{ github.event.client_payload.version }}"
+          VERSION="${{ inputs.version || github.event.client_payload.version }}"
           if [ -z "$VERSION" ]; then
-            echo "No version in client_payload — skipping"
+            echo "No version supplied — skipping"
             exit 0
           fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Updating version badge to v${VERSION}"
+
+      - name: Update codeledger-version.json
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
           RELEASED_AT=$(date -u +"%Y-%m-%d")
-          cat > public/codeledger-version.json << EOF
-{
-  "version": "${VERSION}",
-  "released_at": "${RELEASED_AT}",
-  "release_url": "https://github.com/codeledgerECF/codeledger/releases/tag/v${VERSION}"
-}
-EOF
-          echo "Updated version badge to ${VERSION}"
+          printf '{\n  "version": "%s",\n  "released_at": "%s",\n  "release_url": "https://github.com/codeledgerECF/codeledger/releases/tag/v%s"\n}\n' \
+            "$VERSION" "$RELEASED_AT" "$VERSION" > public/codeledger-version.json
+          cat public/codeledger-version.json
 
       - name: Commit and push
         run: |
-          VERSION="${{ github.event.client_payload.version }}"
+          VERSION="${{ steps.ver.outputs.version }}"
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/codeledger-version.json
           git diff --cached --quiet \
-            && echo "Version already at ${VERSION} — no commit needed" \
+            && echo "Version already at v${VERSION} — no commit needed" \
             && exit 0
           git commit -m "chore: bump CodeLedger version badge to v${VERSION}"
           git push
-          echo "Pushed — deploy-pages will redeploy demo.codeledger.dev automatically"
+          echo "Pushed — deploy-pages.yml will redeploy demo.codeledger.dev automatically"
