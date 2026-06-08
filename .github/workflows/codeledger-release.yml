@@ -1,0 +1,57 @@
+name: CodeLedger Release Sync
+
+# Handles `codeledger-release` repository_dispatch events from
+# codeledgerECF/codeledger-blackbox release-dispatch.yml.
+#
+# On each new CodeLedger release:
+#   1. Updates public/codeledger-version.json with the new version
+#   2. Commits and pushes to main
+#   3. The push trigger in deploy-pages.yml fires automatically,
+#      rebuilding and redeploying the dashboard at demo.codeledger.dev
+
+on:
+  repository_dispatch:
+    types: [codeledger-release]
+
+permissions:
+  contents: write
+
+jobs:
+  sync-version:
+    name: Bump version badge to v${{ github.event.client_payload.version }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update codeledger-version.json
+        run: |
+          VERSION="${{ github.event.client_payload.version }}"
+          if [ -z "$VERSION" ]; then
+            echo "No version in client_payload — skipping"
+            exit 0
+          fi
+          RELEASED_AT=$(date -u +"%Y-%m-%d")
+          cat > public/codeledger-version.json << EOF
+{
+  "version": "${VERSION}",
+  "released_at": "${RELEASED_AT}",
+  "release_url": "https://github.com/codeledgerECF/codeledger/releases/tag/v${VERSION}"
+}
+EOF
+          echo "Updated version badge to ${VERSION}"
+
+      - name: Commit and push
+        run: |
+          VERSION="${{ github.event.client_payload.version }}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/codeledger-version.json
+          git diff --cached --quiet \
+            && echo "Version already at ${VERSION} — no commit needed" \
+            && exit 0
+          git commit -m "chore: bump CodeLedger version badge to v${VERSION}"
+          git push
+          echo "Pushed — deploy-pages will redeploy demo.codeledger.dev automatically"
