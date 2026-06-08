@@ -8,11 +8,11 @@ name: Deploy to GitHub Pages
 # Live at: https://demo.codeledger.dev
 #
 # Triggers:
-#   push (main)           — normal deploy on any commit
+#   push (main)           — normal deploy on any commit to main
 #   workflow_dispatch     — manual redeploy
-#   repository_dispatch   — fired by codeledger-blackbox release-dispatch.yml
-#                          after a new CLI release; bumps public/codeledger-version.json
-#                          then deploys so the version badge stays current
+#   repository_dispatch   — fired by codeledger-blackbox release-dispatch.yml after a new
+#                           CLI release; bumps public/codeledger-version.json and commits,
+#                           which in turn triggers the push-based deploy automatically
 
 on:
   push:
@@ -31,21 +31,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ── On release dispatch: bump the version file first, then fall through to build ──
+  # ── Bump version badge on release dispatch ──────────────────────────────────
+  # Commits new public/codeledger-version.json → triggers push → build+deploy fires
   bump-version:
     if: github.event_name == 'repository_dispatch'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      version: ${{ steps.bump.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Bump codeledger-version.json
-        id: bump
+      - name: Update codeledger-version.json
         run: |
           VERSION="${{ github.event.client_payload.version }}"
           RELEASED_AT=$(date -u +"%Y-%m-%d")
@@ -56,23 +52,21 @@ jobs:
   "release_url": "https://github.com/codeledgerECF/codeledger/releases/tag/v${VERSION}"
 }
 EOF
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/codeledger-version.json
-          git diff --cached --quiet && echo "No version change" && exit 0
+          git diff --cached --quiet && echo "Version unchanged — skipping commit" && exit 0
           git commit -m "chore: bump CodeLedger version badge to v${VERSION}"
           git push
+          echo "Pushed version bump — deploy will fire automatically via push trigger"
 
+  # ── Build static site ──────────────────────────────────────────────────────
+  # Skipped for repository_dispatch (the version-bump push will trigger a new run)
   build:
-    needs: [bump-version]
-    if: always() && (needs.bump-version.result == 'success' || needs.bump-version.result == 'skipped')
+    if: github.event_name != 'repository_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Pull latest commit (may include version bump from bump-version job)
-          ref: main
 
       - uses: actions/setup-node@v4
         with:
@@ -101,6 +95,7 @@ EOF
         with:
           path: ./out
 
+  # ── Deploy to GitHub Pages ─────────────────────────────────────────────────
   deploy:
     needs: build
     runs-on: ubuntu-latest
