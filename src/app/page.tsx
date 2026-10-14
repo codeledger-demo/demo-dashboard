@@ -21,6 +21,21 @@ const publicRepoFindings = [
   },
 ];
 
+const suiteLayers = [
+  {
+    name: 'CodeLedger',
+    value: 'Finds the right repo context, keeps activation fresh, verifies work, and writes receipts.',
+  },
+  {
+    name: 'FabricLedgerSDK',
+    value: 'Prunes noisy prompts, filters unsafe commands, and records what was allowed into the agent loop.',
+  },
+  {
+    name: 'CFA',
+    value: 'Adds enterprise policy, approvals, gateway decisions, and denied-capability receipts.',
+  },
+];
+
 export default function LandingPage(): JSX.Element {
   return (
     <main className="flex min-h-screen items-center justify-center bg-surface-bg p-8">
@@ -100,6 +115,42 @@ export default function LandingPage(): JSX.Element {
               className="mt-4 inline-flex rounded-lg border border-brand-primary bg-white px-3 py-2 text-xs font-medium text-brand-primary shadow-sm transition hover:bg-emerald-50"
             >
               See the trust layers
+            </Link>
+          </div>
+
+          {/* ContextECF Suite Block */}
+          <div className="mt-6 border border-stone-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary">
+                  ContextECF Suite
+                </p>
+                <h2 className="mt-2 font-serif text-2xl font-bold text-stone-900">
+                  One install story, three evidence layers
+                </h2>
+              </div>
+              <span className="w-fit rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-medium text-stone-500">
+                Local-first by default
+              </span>
+            </div>
+            <p className="mt-3 text-sm leading-relaxed text-stone-600">
+              Developers start with CodeLedger. Teams add FabricLedgerSDK when they need
+              prompt pruning and runtime safety. Enterprises add CFA when policy, approvals,
+              and gateway receipts matter. The same transaction trail connects all three.
+            </p>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {suiteLayers.map((layer) => (
+                <div key={layer.name} className="border border-stone-200 bg-stone-50 p-4">
+                  <p className="text-sm font-semibold text-stone-900">{layer.name}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-stone-500">{layer.value}</p>
+                </div>
+              ))}
+            </div>
+            <Link
+              href="/suite"
+              className="mt-4 inline-flex rounded-lg border border-brand-primary bg-white px-3 py-2 text-xs font-medium text-brand-primary shadow-sm transition hover:bg-emerald-50"
+            >
+              See the suite walkthrough
             </Link>
           </div>
 
@@ -183,6 +234,13 @@ export default function LandingPage(): JSX.Element {
               </li>
               <li>
                 <span className="text-stone-400">5.</span>{' '}
+                <Link href="/suite" className="text-brand-primary hover:underline">
+                  ContextECF Suite
+                </Link>{' '}
+                — context, prompt safety, and enterprise control
+              </li>
+              <li>
+                <span className="text-stone-400">6.</span>{' '}
                 <Link href="/trust-layers" className="text-brand-primary hover:underline">
                   Trust Layers
                 </Link>{' '}

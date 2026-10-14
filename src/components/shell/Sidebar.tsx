@@ -65,6 +65,7 @@ const navSections: NavSection[] = [
   {
     title: 'Enterprise',
     items: [
+      { label: 'ContextECF Suite', href: '/suite', icon: 'layers' },
       { label: 'Fleet Insights', href: '/fleet', icon: 'globe' },
     ],
   },
